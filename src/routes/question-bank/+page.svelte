@@ -1,6 +1,6 @@
 <script lang="ts">
   import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
-  import { writable, derived } from 'svelte/store';
+  import { writable, derived, get } from 'svelte/store';
 
   const keyword = writable('');
   const subjectFilter = writable('');
@@ -9,17 +9,15 @@
   const subjects = derived(questions, qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]);
   const sources = derived(questions, qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]);
 
-  const filtered = derived([
-    questions,
-    keyword,
-    subjectFilter,
-    sourceFilter
-  ], ([$qs, $kw, $sub, $src]) =>
-    $qs.filter(q =>
-      (!$kw || q.question.includes($kw)) &&
-      (!$sub || q.subject === $sub) &&
-      (!$src || q.source === $src)
-    )
+  const filtered = derived(
+    [questions, keyword, subjectFilter, sourceFilter],
+    ([$qs, $kw, $sub, $src]) =>
+      $qs.filter(
+        (q) =>
+          (!$kw || q.question.includes($kw)) &&
+          (!$sub || q.subject === $sub) &&
+          (!$src || q.source === $src)
+      )
   );
 
   let editing: Question | null = null;
@@ -29,6 +27,21 @@
   function openEdit(q: Question) {
     editing = { ...q };
     answerValue = Array.isArray(q.answer) ? (q.answer as string[]).join(',') : (q.answer as string);
+    dlg?.showModal();
+  }
+
+  function newQuestion() {
+    const id = Math.max(0, ...get(questions).map((q) => q.id)) + 1;
+    editing = {
+      id,
+      type: 'single',
+      question: '',
+      options: { A: '', B: '' },
+      answer: '',
+      source: '',
+      subject: ''
+    };
+    answerValue = '';
     dlg?.showModal();
   }
 
@@ -53,7 +66,15 @@
   function save() {
     if (!editing) return;
     editing.answer = answerValue;
-    questions.update(list => list.map(q => q.id === editing!.id ? editing! : q));
+    questions.update((list) => {
+      const idx = list.findIndex((q) => q.id === editing!.id);
+      if (idx >= 0) {
+        const copy = [...list];
+        copy[idx] = editing!;
+        return copy;
+      }
+      return [...list, editing!];
+    });
     dlg?.close();
     editing = null;
   }
@@ -66,6 +87,7 @@
 <h1>Question Bank</h1>
 {#if $questions.length === 0}
   <p>No questions loaded. <a href="/import-exam">Import a file</a>.</p>
+  <button on:click={newQuestion}>New Question</button>
 {:else}
   <div class="filters">
     <input placeholder="Keyword" bind:value={$keyword} />
@@ -86,7 +108,9 @@
     <thead>
       <tr>
         <th>Question</th>
+        <th>Options</th>
         <th>Answer</th>
+        <th>Subject</th>
         <th>Source</th>
         <th></th>
       </tr>
@@ -95,7 +119,9 @@
       {#each $filtered as q}
         <tr>
           <td>{q.question.slice(0, 30)}</td>
+          <td>{q.options ? Object.entries(q.options).map(([k,v]) => `${k}:${v}`).join(', ') : ''}</td>
           <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
+          <td>{q.subject}</td>
           <td>{q.source}</td>
           <td>
             <button on:click={() => openEdit(q)}>Edit</button>
@@ -105,6 +131,7 @@
       {/each}
     </tbody>
   </table>
+  <button type="button" on:click={newQuestion}>New Question</button>
   <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
 {/if}
 
