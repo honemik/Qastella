@@ -1,5 +1,6 @@
 <script lang="ts">
   import { questions, type Question } from '$lib/stores/questions';
+  import { invoke } from '@tauri-apps/api/core';
 
   function handleFile(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -27,10 +28,16 @@
     };
     reader.readAsText(file);
   }
+
+  async function loadSample() {
+    const data = await invoke('sample_questions');
+    questions.set(data as Question[]);
+  }
 </script>
 
-<h1>Import Questions</h1>
+<h1>Import Exam</h1>
 <input type="file" accept="application/json" on:change={handleFile} />
+<button on:click={loadSample}>Load Sample Questions</button>
 <p>Load a JSON file with the following structure:</p>
 <pre>{@html `{
   "source": "110年醫學四",
@@ -40,7 +47,7 @@
   ]
 }`}</pre>
 
-<a href="/questions">View Questions</a>
+<a href="/question-bank">View Questions</a>
 
 <style>
 pre {
