@@ -86,7 +86,7 @@
 
 <h1>Question Bank</h1>
 {#if $questions.length === 0}
-  <p>No questions loaded. <a href="/import-exam">Import a file</a>.</p>
+  <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
   <button on:click={newQuestion}>New Question</button>
 {:else}
   <div class="filters">

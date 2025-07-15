@@ -28,7 +28,7 @@
   {/if}
   <nav class="quick">
     <a href="/exam-config">Start Mock Exam</a>
-    <a href="/import-exam">Import Exam</a>
+    <a href="/import-questionbank">Import Question Bank</a>
     <a href="/question-bank">Manage Bank</a>
   </nav>
 </main>

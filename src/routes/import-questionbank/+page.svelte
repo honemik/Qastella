@@ -35,7 +35,7 @@
   }
 </script>
 
-<h1>Import Exam</h1>
+<h1>Import Question Bank</h1>
 <input type="file" accept="application/json" on:change={handleFile} />
 <button on:click={loadSample}>Load Sample Questions</button>
 <p>Load a JSON file with the following structure:</p>
