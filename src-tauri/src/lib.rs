@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{collections::HashMap, fs};
+use tauri::Manager;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
