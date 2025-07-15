@@ -32,6 +32,24 @@
     dlg?.showModal();
   }
 
+  function addOption() {
+    if (!editing) return;
+    const opts = { ...(editing.options ?? {}) };
+    const letters = Object.keys(opts);
+    const next = letters.length
+      ? String.fromCharCode(Math.max(...letters.map(l => l.charCodeAt(0))) + 1)
+      : 'A';
+    opts[next] = '';
+    editing = { ...editing, options: opts };
+  }
+
+  function removeOption(key: string) {
+    if (!editing || !editing.options) return;
+    const opts = { ...editing.options };
+    delete opts[key];
+    editing = { ...editing, options: opts };
+  }
+
   function save() {
     if (!editing) return;
     editing.answer = answerValue;
@@ -98,9 +116,13 @@
     </label>
     {#if editing.options}
       {#each Object.entries(editing.options) as [key, val]}
-        <label>{key}: <input bind:value={editing.options![key]} /></label>
+        <label>
+          {key}: <input bind:value={editing.options![key]} />
+          <button type="button" on:click={() => removeOption(key)}>x</button>
+        </label>
       {/each}
     {/if}
+    <button type="button" on:click={addOption}>Add Option</button>
     <label>
       Answer
       <input bind:value={answerValue} />
