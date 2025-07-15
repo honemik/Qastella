@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { questions, type Question } from '$lib/stores/questions';
+  import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
   import { writable, derived } from 'svelte/store';
 
   const keyword = writable('');
@@ -105,6 +105,7 @@
       {/each}
     </tbody>
   </table>
+  <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
 {/if}
 
 <dialog bind:this={dlg}>
@@ -148,5 +149,9 @@ th, td {
 
 button {
   margin-right: 0.25em;
+}
+
+.save-bank {
+  margin-top: 1em;
 }
 </style>
