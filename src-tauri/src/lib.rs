@@ -27,9 +27,9 @@ fn sample_questions() -> Vec<RQuestion> {
 #[tauri::command]
 fn save_questions(app_handle: tauri::AppHandle, questions: Vec<RQuestion>) -> Result<(), String> {
     let path = app_handle
-        .path_resolver()
+        .path()
         .app_data_dir()
-        .ok_or("no app dir")?
+        .map_err(|e| e.to_string())?
         .join("question_bank.json");
     if let Some(dir) = path.parent() {
         fs::create_dir_all(dir).map_err(|e| e.to_string())?;
