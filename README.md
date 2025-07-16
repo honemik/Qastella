@@ -9,26 +9,25 @@ This template should help get you started developing with Tauri, SvelteKit and T
 ## Importing Questions
 
 1. Open the **Import Question Bank** page in the app.
-2. Choose a JSON file with one or more question sets.
-3. Each set can optionally specify `source` and `subject` and contains a `questions` array.
-4. The imported questions will be added to the existing bank.
+2. Choose a JSON file that stores questions grouped by subject and source year.
+3. The imported questions will be merged with any existing ones.
 
 Example file:
 
 ```json
-[
-  {
-    "source": "110年醫學四",
-    "subject": "生理學",
-    "questions": [
-      {
-        "id": 1,
-        "type": "single",
-        "question": "Example?",
-        "options": { "A": "Yes", "B": "No" },
-        "answer": "A"
-      }
-    ]
+{
+  "subjects": {
+    "生理學": {
+      "110年醫學四": [
+        {
+          "id": 1,
+          "type": "single",
+          "question": "Example?",
+          "options": { "A": "Yes", "B": "No" },
+          "answer": "A"
+        }
+      ]
+    }
   }
-]
+}
 ```

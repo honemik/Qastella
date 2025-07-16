@@ -3,7 +3,7 @@
   import { initSettings } from '$lib/stores/settings';
   import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
   import { loadHistory, saveHistory } from '$lib/stores/results';
-  import { appWindow } from '@tauri-apps/api/window';
+  import { getCurrentWindow } from '@tauri-apps/api/window';
 
   onMount(() => {
     (async () => {
@@ -17,9 +17,10 @@
     };
 
     window.addEventListener('beforeunload', saveAll);
-    let unlistenPromise = appWindow.listen('tauri://close-requested', async () => {
+    const win = getCurrentWindow();
+    let unlistenPromise: Promise<() => void> = win.listen('tauri://close-requested', async () => {
       saveAll();
-      await appWindow.close();
+      await win.close();
     });
 
     return () => {

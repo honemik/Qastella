@@ -12,62 +12,52 @@ export interface Question {
   subject?: string;
 }
 
-export interface QuestionSet {
-  source?: string;
-  subject?: string;
-  questions: Omit<Question, 'source' | 'subject'>[];
+export interface QuestionBank {
+  subjects: Record<string, Record<string, Omit<Question, 'subject' | 'source'>[]>>;
 }
 
 export const questions = writable<Question[]>([]);
 
-function groupQuestions(list: Question[]): QuestionSet[] {
-  const map = new Map<
-    string | undefined,
-    Map<string | undefined, Omit<Question, 'source' | 'subject'>[]>
-  >();
+export function toBank(list: Question[]): QuestionBank {
+  const bank: QuestionBank = { subjects: {} };
   for (const q of list) {
-    const subj = q.subject;
-    const src = q.source;
-    if (!map.has(subj)) {
-      map.set(subj, new Map());
-    }
-    const srcMap = map.get(subj)!;
-    if (!srcMap.has(src)) {
-      srcMap.set(src, []);
-    }
-    const { source: _s, subject: _b, ...rest } = q;
-    srcMap.get(src)!.push(rest);
+    const subj = q.subject ?? '';
+    const src = q.source ?? '';
+    if (!bank.subjects[subj]) bank.subjects[subj] = {};
+    if (!bank.subjects[subj][src]) bank.subjects[subj][src] = [];
+    const { subject: _s, source: _src, ...rest } = q;
+    bank.subjects[subj][src].push(rest);
   }
-  const sets: QuestionSet[] = [];
-  for (const [subject, srcMap] of map.entries()) {
-    for (const [source, qs] of srcMap.entries()) {
-      sets.push({ subject, source, questions: qs });
-    }
-  }
-  return sets;
+  return bank;
 }
 
-export function flattenQuestionSets(sets: QuestionSet[]): Question[] {
-  return sets.flatMap((set) =>
-    set.questions.map((q) => ({ ...q, source: set.source, subject: set.subject }))
-  );
+export function flattenBank(bank: QuestionBank): Question[] {
+  const out: Question[] = [];
+  for (const [subject, srcMap] of Object.entries(bank.subjects)) {
+    for (const [source, qs] of Object.entries(srcMap)) {
+      for (const q of qs) {
+        out.push({ ...q, subject: subject || undefined, source: source || undefined });
+      }
+    }
+  }
+  return out;
 }
 
 export async function saveQuestionBank() {
   const list = get(questions);
   const dir = get(dataDir);
-  const questionSets = groupQuestions(list);
-  await invoke('save_questions', { dir, question_sets: questionSets });
+  const bank = toBank(list);
+  await invoke('save_questions', { dir, bank });
 }
 
 export async function loadQuestionBank() {
   const dir = get(dataDir);
   const data = await invoke('load_questions', { dir });
-  const sets = (data as QuestionSet[]) ?? [];
-  questions.set(flattenQuestionSets(sets));
+  const bank = (data as QuestionBank) ?? { subjects: {} };
+  questions.set(flattenBank(bank));
 }
 
-export function getQuestionSets() {
-  return groupQuestions(get(questions));
+export function getQuestionBank() {
+  return toBank(get(questions));
 }
 
