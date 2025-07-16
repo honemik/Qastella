@@ -23,15 +23,15 @@
     window.addEventListener('beforeunload', unloadHandler);
 
     const win = getCurrentWindow();
-    let unlisten: () => void;
-    win.onCloseRequested(async (e: CloseRequestedEvent) => {
-      e.preventDefault();
-      await saveAll();
-      if (unlisten) unlisten();
-      await win.close();
-    }).then((fn) => {
-      unlisten = fn;
-    });
+    let unlisten: () => Promise<void> | void;
+    (async () => {
+      unlisten = await win.onCloseRequested(async (e: CloseRequestedEvent) => {
+        e.preventDefault();
+        await saveAll();
+        if (unlisten) await unlisten();
+        await win.close();
+      });
+    })();
 
     return () => {
       window.removeEventListener('beforeunload', unloadHandler);
