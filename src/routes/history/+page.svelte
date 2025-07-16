@@ -7,12 +7,10 @@
   <p>No exam history.</p>
 {:else}
   <ul>
-    {#each $history as item}
+    {#each $history as item, i}
       <li>
-        {new Date(item.timestamp).toLocaleString()} -
-        {item.result.records.filter(r => r.correct).length}/{item.result.records.length}
+        <a href={`/review/${i}`}>{new Date(item.timestamp).toLocaleString()} - {item.result.records.filter(r => r.correct).length}/{item.result.records.length}</a>
       </li>
     {/each}
   </ul>
 {/if}
-
