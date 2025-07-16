@@ -65,7 +65,10 @@ fn resolve_path(
 ) -> Result<PathBuf, String> {
     if let Some(d) = dir {
         let mut p = PathBuf::from(d);
-        if p.is_dir() {
+        // Treat the provided value as a directory path. Even if it does not yet
+        // exist, join the desired file name so we read/write to
+        // `<dir>/<file>` rather than the directory itself.
+        if p.is_dir() || p.extension().is_none() {
             p.push(file);
         }
         Ok(p)
