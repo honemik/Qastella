@@ -18,17 +18,16 @@ export const lastResult = writable<ExamResult | null>(null);
 export const attemptCount = writable(0);
 export const correctTotal = writable(0);
 
-export interface HistoryEntry {
+export interface TimedExamResult extends ExamResult {
   timestamp: string;
-  result: ExamResult;
 }
 
-export const history = writable<HistoryEntry[]>([]);
+export const history = writable<TimedExamResult[]>([]);
 
 export async function loadHistory() {
   const dir = get(dataDir);
   const data = await invoke('load_history', { dir });
-  history.set((data as HistoryEntry[]) ?? []);
+  history.set((data as TimedExamResult[]) ?? []);
 }
 
 export async function saveHistory() {
@@ -38,7 +37,7 @@ export async function saveHistory() {
 }
 
 export function addResultToHistory(res: ExamResult) {
-  history.update((list) => [...list, { timestamp: new Date().toISOString(), result: res }]);
+  history.update((list) => [...list, { ...res, timestamp: new Date().toISOString() }]);
   saveHistory();
 }
 
