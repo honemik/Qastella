@@ -3,7 +3,7 @@
   import { initSettings } from '$lib/stores/settings';
   import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
   import { loadHistory, saveHistory } from '$lib/stores/results';
-  import { getCurrentWindow } from '@tauri-apps/api/window';
+  import { getCurrentWindow, type CloseRequestedEvent } from '@tauri-apps/api/window';
 
   onMount(() => {
     (async () => {
@@ -24,8 +24,10 @@
 
     const win = getCurrentWindow();
     let unlisten: () => void;
-    win.listen('tauri://close-requested', async () => {
+    win.onCloseRequested(async (e: CloseRequestedEvent) => {
+      e.preventDefault();
       await saveAll();
+      if (unlisten) unlisten();
       await win.close();
     }).then((fn) => {
       unlisten = fn;
