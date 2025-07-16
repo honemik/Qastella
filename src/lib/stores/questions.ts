@@ -52,8 +52,10 @@ export async function saveQuestionBank() {
 
 export async function loadQuestionBank() {
   const dir = get(dataDir);
-  const data = await invoke('load_questions', { dir });
-  const bank = (data as QuestionBank) ?? { subjects: {} };
+  let bank = (await invoke('load_questions', { dir })) as QuestionBank;
+  if (!bank || Object.keys(bank.subjects).length === 0) {
+    bank = (await invoke('sample_questions')) as QuestionBank;
+  }
   questions.set(flattenBank(bank));
 }
 

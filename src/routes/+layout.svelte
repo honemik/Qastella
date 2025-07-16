@@ -11,21 +11,29 @@
       await Promise.all([loadQuestionBank(), loadHistory()]);
     })();
 
-    const saveAll = () => {
+    const saveAll = async () => {
+      await Promise.all([saveQuestionBank(), saveHistory()]);
+    };
+
+    const unloadHandler = () => {
+      // fire and forget when the browser reloads
       saveQuestionBank();
       saveHistory();
     };
+    window.addEventListener('beforeunload', unloadHandler);
 
-    window.addEventListener('beforeunload', saveAll);
     const win = getCurrentWindow();
-    let unlistenPromise: Promise<() => void> = win.listen('tauri://close-requested', async () => {
-      saveAll();
+    let unlisten: () => void;
+    win.listen('tauri://close-requested', async () => {
+      await saveAll();
       await win.close();
+    }).then((fn) => {
+      unlisten = fn;
     });
 
     return () => {
-      window.removeEventListener('beforeunload', saveAll);
-      unlistenPromise.then((unlisten) => unlisten());
+      window.removeEventListener('beforeunload', unloadHandler);
+      if (unlisten) unlisten();
     };
   });
 </script>
