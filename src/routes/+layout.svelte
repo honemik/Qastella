@@ -28,8 +28,7 @@
       e.preventDefault();
       await saveAll();
       if (unlisten) unlisten();
-      // destroy avoids firing another close request
-      await win.destroy();
+      await win.close();
     }).then((fn) => {
       unlisten = fn;
     });
