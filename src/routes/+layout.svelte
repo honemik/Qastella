@@ -3,7 +3,6 @@
   import { initSettings } from '$lib/stores/settings';
   import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
   import { loadHistory, saveHistory } from '$lib/stores/results';
-  import { getCurrentWindow, type CloseRequestedEvent } from '@tauri-apps/api/window';
 
   onMount(() => {
     (async () => {
@@ -22,22 +21,8 @@
     };
     window.addEventListener('beforeunload', unloadHandler);
 
-    const win = getCurrentWindow();
-    let unlisten: (() => void) | undefined;
-    (async () => {
-      unlisten = await win.onCloseRequested(async (e: CloseRequestedEvent) => {
-        e.preventDefault();
-        await saveAll();
-        // remove the listener before triggering another close
-        if (unlisten) unlisten();
-        // close the window after removing the listener
-        await win.close();
-      });
-    })();
-
     return () => {
       window.removeEventListener('beforeunload', unloadHandler);
-      if (unlisten) unlisten();
     };
   });
 </script>
