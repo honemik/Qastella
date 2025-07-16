@@ -1,10 +1,15 @@
 <script lang="ts">
-  import { lastResult } from '$lib/stores/results';
+  import { page } from '$app/stores';
+  import { derived } from 'svelte/store';
+  import { history } from '$lib/stores/results';
+
+  const idx = derived(page, ($p) => parseInt($p.params.idx));
+  const entry = derived([history, idx], ([$history, id]) => $history[id]);
 </script>
 
 <h1>Exam Review</h1>
-{#if $lastResult}
-  {#each $lastResult.records as rec (rec.question.id)}
+{#if $entry}
+  {#each $entry.records as rec (rec.question.id)}
     <div class="question">
       <p>{rec.question.question}</p>
       {#if rec.question.options}
@@ -22,7 +27,7 @@
     </div>
   {/each}
 {:else}
-  <p>No results.</p>
+  <p>Exam not found.</p>
 {/if}
 
 <style>
