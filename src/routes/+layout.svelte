@@ -41,15 +41,4 @@
 
 <slot />
 
-<style>
-.main-nav {
-  padding: 1rem;
-  background-color: #f5f5f5;
-  display: flex;
-  gap: 1rem;
-}
-.main-nav a {
-  text-decoration: none;
-  color: inherit;
-}
-</style>
+

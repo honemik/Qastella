@@ -45,22 +45,23 @@
   }
 </script>
 
-<h1>Import Question Bank</h1>
-<input type="file" accept="application/json" on:change={handleFile} />
-<button on:click={loadSample}>Load Sample Questions</button>
-<p>
-  Select a JSON file with the following structure. Questions are grouped by
-  subject and then by source year.
-</p>
-<pre>{@html `{"subjects":{
+<main>
+  <h1>Import Question Bank</h1>
+  <input type="file" accept="application/json" on:change={handleFile} />
+  <button on:click={loadSample}>Load Sample Questions</button>
+  <p>
+    Select a JSON file with the following structure. Questions are grouped by
+    subject and then by source year.
+  </p>
+  <pre>{@html `{"subjects":{
   "生理學":{
     "110年醫學四":[
       {"id":1,"type":"single","question":"...","options":{"A":"..."},"answer":"A"}
     ]
   }
 }}`}</pre>
-
-<a href="/question-bank">View Questions</a>
+  <a href="/question-bank">View Questions</a>
+</main>
 
 <style>
 pre {

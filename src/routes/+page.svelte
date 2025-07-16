@@ -33,16 +33,4 @@
   </nav>
 </main>
 
-<style>
-.container {
-  padding: 2rem;
-  text-align: center;
-}
-nav a {
-  margin: 0 1rem;
-  font-size: 1.2rem;
-}
-.quick a {
-  margin: 0 1rem;
-}
-</style>
+

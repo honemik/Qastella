@@ -40,11 +40,13 @@
   }
 </script>
 
-<h1>Settings</h1>
-<label>
-  Data Directory <input bind:value={dir} />
-</label>
-<button on:click={updateDir}>Save Path</button>
-<button on:click={exportQuestions}>Export Question Bank</button>
-<button on:click={exportHistory}>Export History</button>
+<main>
+  <h1>Settings</h1>
+  <label>
+    Data Directory <input bind:value={dir} />
+  </label>
+  <button on:click={updateDir}>Save Path</button>
+  <button on:click={exportQuestions}>Export Question Bank</button>
+  <button on:click={exportHistory}>Export History</button>
+</main>
 

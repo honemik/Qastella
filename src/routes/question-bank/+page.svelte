@@ -102,56 +102,64 @@
   }
 </script>
 
-<h1>Question Bank</h1>
-{#if $questions.length === 0}
-  <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
-  <button on:click={newQuestion}>New Question</button>
-{:else}
-  <div class="filters">
-    <input placeholder="Keyword" bind:value={$keyword} />
-    <select bind:value={$subjectFilter}>
-      <option value="">All Subjects</option>
-      {#each $subjects as s}
-        <option value={s}>{s}</option>
-      {/each}
-    </select>
-    <select bind:value={$sourceFilter}>
-      <option value="">All Years</option>
-      {#each $sources as s}
-        <option value={s}>{s}</option>
-      {/each}
-    </select>
-  </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Question</th>
-        <th>Options</th>
-        <th>Answer</th>
-        <th>Subject</th>
-        <th>Source</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each $filtered as q}
+<main>
+  <h1>Question Bank</h1>
+  {#if $questions.length === 0}
+    <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
+    <button on:click={newQuestion}>New Question</button>
+  {:else}
+    <div class="filters">
+      <input placeholder="Keyword" bind:value={$keyword} />
+      <select bind:value={$subjectFilter}>
+        <option value="">All Subjects</option>
+        {#each $subjects as s}
+          <option value={s}>{s}</option>
+        {/each}
+      </select>
+      <select bind:value={$sourceFilter}>
+        <option value="">All Years</option>
+        {#each $sources as s}
+          <option value={s}>{s}</option>
+        {/each}
+      </select>
+    </div>
+    <table>
+      <thead>
         <tr>
-          <td>{q.question.slice(0, 30)}</td>
-          <td>{q.options ? Object.entries(q.options).map(([k,v]) => `${k}:${v}`).join(', ') : ''}</td>
-          <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
-          <td>{q.subject}</td>
-          <td>{q.source}</td>
-          <td>
-            <button on:click={() => openEdit(q)}>Edit</button>
-            <button on:click={() => remove(q.id)}>Delete</button>
-          </td>
+          <th>Question</th>
+          <th>Options</th>
+          <th>Answer</th>
+          <th>Subject</th>
+          <th>Source</th>
+          <th></th>
         </tr>
-      {/each}
-    </tbody>
-  </table>
-  <button type="button" on:click={newQuestion}>New Question</button>
-  <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
-{/if}
+      </thead>
+      <tbody>
+        {#each $filtered as q}
+          <tr>
+            <td>{q.question.slice(0, 30)}</td>
+            <td>
+              {q.options
+                ? Object.entries(q.options)
+                    .map(([k, v]) => `${k}:${v}`)
+                    .join(', ')
+                : ''}
+            </td>
+            <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
+            <td>{q.subject}</td>
+            <td>{q.source}</td>
+            <td>
+              <button on:click={() => openEdit(q)}>Edit</button>
+              <button on:click={() => remove(q.id)}>Delete</button>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+    <button type="button" on:click={newQuestion}>New Question</button>
+    <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
+  {/if}
+</main>
 
 <dialog bind:this={dlg}>
   {#if editing}
@@ -180,23 +188,4 @@
   {/if}
 </dialog>
 
-<style>
-.filters {
-  margin-bottom: 1em;
-  display: flex;
-  gap: 0.5em;
-}
 
-th, td {
-  padding: 0.25em 0.5em;
-  border-bottom: 1px solid #ccc;
-}
-
-button {
-  margin-right: 0.25em;
-}
-
-.save-bank {
-  margin-top: 1em;
-}
-</style>
