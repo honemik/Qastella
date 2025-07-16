@@ -47,6 +47,12 @@ function groupQuestions(list: Question[]): QuestionSet[] {
   return sets;
 }
 
+export function flattenQuestionSets(sets: QuestionSet[]): Question[] {
+  return sets.flatMap((set) =>
+    set.questions.map((q) => ({ ...q, source: set.source, subject: set.subject }))
+  );
+}
+
 export async function saveQuestionBank() {
   const list = get(questions);
   const dir = get(dataDir);
@@ -58,13 +64,7 @@ export async function loadQuestionBank() {
   const dir = get(dataDir);
   const data = await invoke('load_questions', { dir });
   const sets = (data as QuestionSet[]) ?? [];
-  const flat: Question[] = [];
-  for (const set of sets) {
-    for (const q of set.questions) {
-      flat.push({ ...q, source: set.source, subject: set.subject });
-    }
-  }
-  questions.set(flat);
+  questions.set(flattenQuestionSets(sets));
 }
 
 export function getQuestionSets() {
