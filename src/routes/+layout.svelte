@@ -1,12 +1,31 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { initSettings } from '$lib/stores/settings';
-  import { loadQuestionBank } from '$lib/stores/questions';
-  import { loadHistory } from '$lib/stores/results';
+  import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
+  import { loadHistory, saveHistory } from '$lib/stores/results';
+  import { getCurrentWindow } from '@tauri-apps/api/window';
 
-  onMount(async () => {
-    await initSettings();
-    await Promise.all([loadQuestionBank(), loadHistory()]);
+  onMount(() => {
+    (async () => {
+      await initSettings();
+      await Promise.all([loadQuestionBank(), loadHistory()]);
+    })();
+
+    const saveAll = () => {
+      saveQuestionBank();
+      saveHistory();
+    };
+
+    const win = getCurrentWindow();
+    window.addEventListener('beforeunload', saveAll);
+    win.listen('tauri://close-requested', () => {
+      saveAll();
+      win.close();
+    });
+
+    return () => {
+      window.removeEventListener('beforeunload', saveAll);
+    };
   });
 </script>
 

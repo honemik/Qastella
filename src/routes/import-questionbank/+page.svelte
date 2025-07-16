@@ -11,16 +11,19 @@
       try {
         const data = JSON.parse(reader.result as string);
         if (Array.isArray(data.questions)) {
-          const list: Question[] = data.questions.map((q: any, i: number) => ({
-            id: q.id ?? i + 1,
-            type: q.type ?? 'single',
-            question: q.question,
-            options: q.options,
-            answer: q.answer,
-            source: data.source,
-            subject: data.subject,
-          }));
-          questions.set(list);
+          questions.update((existing) => {
+            const start = Math.max(0, ...existing.map((q) => q.id)) + 1;
+            const added: Question[] = data.questions.map((q: any, i: number) => ({
+              id: q.id ?? start + i,
+              type: q.type ?? 'single',
+              question: q.question,
+              options: q.options,
+              answer: q.answer,
+              source: data.source,
+              subject: data.subject,
+            }));
+            return [...existing, ...added];
+          });
         }
       } catch (e) {
         console.error('Failed to parse', e);
