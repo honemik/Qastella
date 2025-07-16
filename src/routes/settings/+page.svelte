@@ -1,6 +1,6 @@
 <script lang="ts">
   import { dataDir } from '$lib/stores/settings';
-  import { questions, saveQuestionBank } from '$lib/stores/questions';
+  import { getQuestionBank } from '$lib/stores/questions';
   import { history, saveHistory } from '$lib/stores/results';
 
   let dir = '';
@@ -11,7 +11,7 @@
   }
 
   function exportQuestions() {
-    const data = JSON.stringify($questions, null, 2);
+    const data = JSON.stringify(getQuestionBank(), null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

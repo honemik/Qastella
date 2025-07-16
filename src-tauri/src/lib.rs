@@ -1,7 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, fs, path::PathBuf};
+use std::{collections::{HashMap, BTreeMap}, fs, path::PathBuf};
 use tauri::Manager;
 
 #[tauri::command]
@@ -15,8 +15,11 @@ struct RQuestion {
     question: String,
     options: Option<HashMap<String, String>>,
     answer: Value,
-    source: Option<String>,
-    subject: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct RQuestionBank {
+    subjects: BTreeMap<String, BTreeMap<String, Vec<RQuestion>>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,18 +37,24 @@ struct RExamResult {
 }
 
 #[tauri::command]
-fn sample_questions() -> Vec<RQuestion> {
+fn sample_questions() -> RQuestionBank {
     let mut opts = HashMap::new();
     opts.insert("A".into(), "Yes".into());
     opts.insert("B".into(), "No".into());
-    vec![RQuestion {
+
+    let question = RQuestion {
         id: 1,
         question: "Example?".into(),
         options: Some(opts),
         answer: Value::String("A".into()),
-        source: Some("Sample".into()),
-        subject: Some("General".into()),
-    }]
+    };
+
+    let mut src_map = BTreeMap::new();
+    src_map.insert("Sample".into(), vec![question]);
+    let mut subj_map = BTreeMap::new();
+    subj_map.insert("General".into(), src_map);
+
+    RQuestionBank { subjects: subj_map }
 }
 
 #[tauri::command]
@@ -85,11 +94,11 @@ fn resolve_path(
 fn load_questions(
     app_handle: tauri::AppHandle,
     dir: Option<String>,
-) -> Result<Vec<RQuestion>, String> {
+) -> Result<RQuestionBank, String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
     match fs::read_to_string(path) {
         Ok(content) => serde_json::from_str(&content).map_err(|e| e.to_string()),
-        Err(_) => Ok(Vec::new()),
+        Err(_) => Ok(RQuestionBank { subjects: BTreeMap::new() }),
     }
 }
 
@@ -97,13 +106,13 @@ fn load_questions(
 fn save_questions(
     app_handle: tauri::AppHandle,
     dir: Option<String>,
-    questions: Vec<RQuestion>,
+    bank: RQuestionBank,
 ) -> Result<(), String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
-    let data = serde_json::to_vec_pretty(&questions).map_err(|e| e.to_string())?;
+    let data = serde_json::to_vec_pretty(&bank).map_err(|e| e.to_string())?;
     fs::write(path, data).map_err(|e| e.to_string())?;
     Ok(())
 }

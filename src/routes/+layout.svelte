@@ -3,7 +3,7 @@
   import { initSettings } from '$lib/stores/settings';
   import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
   import { loadHistory, saveHistory } from '$lib/stores/results';
-  import { getCurrentWindow } from '@tauri-apps/api/window';
+  import { getCurrentWindow, type CloseRequestedEvent } from '@tauri-apps/api/window';
 
   onMount(() => {
     (async () => {
@@ -11,20 +11,32 @@
       await Promise.all([loadQuestionBank(), loadHistory()]);
     })();
 
-    const saveAll = () => {
+    const saveAll = async () => {
+      await Promise.all([saveQuestionBank(), saveHistory()]);
+    };
+
+    const unloadHandler = () => {
+      // fire and forget when the browser reloads
       saveQuestionBank();
       saveHistory();
     };
+    window.addEventListener('beforeunload', unloadHandler);
 
     const win = getCurrentWindow();
-    window.addEventListener('beforeunload', saveAll);
-    win.listen('tauri://close-requested', () => {
-      saveAll();
-      win.close();
-    });
+    let unlisten: (() => Promise<void>) | undefined;
+    (async () => {
+      unlisten = await win.onCloseRequested(async (e: CloseRequestedEvent) => {
+        e.preventDefault();
+        await saveAll();
+        // remove the listener before triggering another close
+        if (unlisten) unlisten();
+        await win.close();
+      });
+    })();
 
     return () => {
-      window.removeEventListener('beforeunload', saveAll);
+      window.removeEventListener('beforeunload', unloadHandler);
+      if (unlisten) unlisten();
     };
   });
 </script>
