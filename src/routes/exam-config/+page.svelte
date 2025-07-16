@@ -8,9 +8,19 @@
   const subject = writable('');
   const source = writable('');
 
-  const subjects = derived(questions, qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]);
-  const sources = derived(questions, qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]);
+  // Distinct list of subjects and sources for the selection dropdowns
+  const subjects = derived(
+    questions,
+    qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]
+  );
+  const sources = derived(
+    questions,
+    qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]
+  );
 
+  /**
+   * Prepare the selected subset of questions and navigate to the exam page.
+   */
   function start() {
     const subj = get(subject);
     const src = get(source);
@@ -24,28 +34,30 @@
   }
 </script>
 
-<h1>Mock Exam Setup</h1>
-<p>Total questions available: {$questions.length}</p>
-<label>
-  Question count:
-  <input type="number" min="1" max={$questions.length} bind:value={$count} />
-</label>
-<label>
-  Subject:
-  <select bind:value={$subject}>
-    <option value="">All</option>
-    {#each $subjects as s}
-      <option value={s}>{s}</option>
-    {/each}
-  </select>
-</label>
-<label>
-  Source:
-  <select bind:value={$source}>
-    <option value="">All</option>
-    {#each $sources as s}
-      <option value={s}>{s}</option>
-    {/each}
-  </select>
-</label>
-<button on:click={start}>Start</button>
+<main>
+  <h1>Mock Exam Setup</h1>
+  <p>Total questions available: {$questions.length}</p>
+  <label>
+    Question count:
+    <input type="number" min="1" max={$questions.length} bind:value={$count} />
+  </label>
+  <label>
+    Subject:
+    <select bind:value={$subject}>
+      <option value="">All</option>
+      {#each $subjects as s}
+        <option value={s}>{s}</option>
+      {/each}
+    </select>
+  </label>
+  <label>
+    Source:
+    <select bind:value={$source}>
+      <option value="">All</option>
+      {#each $sources as s}
+        <option value={s}>{s}</option>
+      {/each}
+    </select>
+  </label>
+  <button on:click={start}>Start</button>
+</main>

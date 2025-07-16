@@ -16,8 +16,13 @@ export interface QuestionBank {
   subjects: Record<string, Record<string, Omit<Question, 'subject' | 'source'>[]>>;
 }
 
+// A reactive list containing all loaded questions
 export const questions = writable<Question[]>([]);
 
+/**
+ * Convert a flat list of questions into the nested
+ * {@link QuestionBank} structure grouped by subject and source.
+ */
 export function toBank(list: Question[]): QuestionBank {
   const bank: QuestionBank = { subjects: {} };
   for (const q of list) {
@@ -31,18 +36,28 @@ export function toBank(list: Question[]): QuestionBank {
   return bank;
 }
 
+/**
+ * Flatten a {@link QuestionBank} back into a list of questions.
+ */
 export function flattenBank(bank: QuestionBank): Question[] {
   const out: Question[] = [];
   for (const [subject, srcMap] of Object.entries(bank.subjects)) {
     for (const [source, qs] of Object.entries(srcMap)) {
       for (const q of qs) {
-        out.push({ ...q, subject: subject || undefined, source: source || undefined });
+        out.push({
+          ...q,
+          subject: subject || undefined,
+          source: source || undefined
+        });
       }
     }
   }
   return out;
 }
 
+/**
+ * Persist the question bank to disk using the Tauri backend.
+ */
 export async function saveQuestionBank() {
   const list = get(questions);
   const dir = get(dataDir);
@@ -50,6 +65,10 @@ export async function saveQuestionBank() {
   await invoke('save_questions', { dir, bank });
 }
 
+/**
+ * Load the question bank from disk. If no questions are present
+ * a built in sample bank is loaded instead.
+ */
 export async function loadQuestionBank() {
   const dir = get(dataDir);
   let bank = (await invoke('load_questions', { dir })) as QuestionBank;
@@ -59,6 +78,9 @@ export async function loadQuestionBank() {
   questions.set(flattenBank(bank));
 }
 
+/**
+ * Convenience helper to get the current questions in bank form.
+ */
 export function getQuestionBank() {
   return toBank(get(questions));
 }

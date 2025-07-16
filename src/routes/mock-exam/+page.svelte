@@ -3,8 +3,12 @@
     import { examQuestions } from '$lib/stores/exam';
     import { lastResult, attemptCount, correctTotal, type AnswerRecord, addResultToHistory } from '$lib/stores/results';
 
+  // Stores selected answers keyed by question id
   let answers: Record<number, string> = {};
 
+  /**
+   * Grade the answers and store the result before moving to the result page.
+   */
   function submit() {
       const records: AnswerRecord[] = [];
       let correct = 0;
@@ -20,35 +24,37 @@
       correctTotal.update((n) => n + correct);
       goto('/exam-result');
     }
-  </script>
+</script>
 
+<main>
   <h1>Mock Exam</h1>
   {#if $examQuestions.length === 0}
-  <p>No questions available. <a href="/import-questionbank">Import a file</a>.</p>
+    <p>
+      No questions available. <a href="/import-questionbank">Import a file</a>.
+    </p>
   {:else}
-  <form on:submit|preventDefault={submit}>
-  {#each $examQuestions as q (q.id)}
-  <div class="question">
-    <p>{q.question}</p>
-    {#if q.options}
-      {#each Object.entries(q.options) as [key, text]}
-        <label>
-          <input type="radio" name="q-{q.id}" value={key} bind:group={answers[q.id]} />
-          {key}. {text}
-        </label>
+    <form on:submit|preventDefault={submit}>
+      {#each $examQuestions as q (q.id)}
+        <div class="question">
+          <p>{q.question}</p>
+          {#if q.options}
+            {#each Object.entries(q.options) as [key, text]}
+              <label>
+                <input
+                  type="radio"
+                  name="q-{q.id}"
+                  value={key}
+                  bind:group={answers[q.id]}
+                />
+                {key}. {text}
+              </label>
+            {/each}
+          {/if}
+        </div>
       {/each}
-    {/if}
-  </div>
-  {/each}
-  <button type="submit">Submit</button>
-</form>
-{/if}
+      <button type="submit">Submit</button>
+    </form>
+  {/if}
+</main>
 
-<style>
-.question {
-  margin-bottom: 1em;
-}
-label {
-  display: block;
-}
-</style>
+

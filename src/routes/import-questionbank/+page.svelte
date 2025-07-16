@@ -7,6 +7,10 @@
   } from '$lib/stores/questions';
   import { invoke } from '@tauri-apps/api/core';
 
+  /**
+   * Import questions from a user selected JSON file and merge them into the
+   * current question list.
+   */
   function handleFile(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -32,28 +36,32 @@
     reader.readAsText(file);
   }
 
+  /**
+   * Load the built in sample questions using a backend call.
+   */
   async function loadSample() {
     const data = (await invoke('sample_questions')) as QuestionBank;
     questions.set(flattenBank(data));
   }
 </script>
 
-<h1>Import Question Bank</h1>
-<input type="file" accept="application/json" on:change={handleFile} />
-<button on:click={loadSample}>Load Sample Questions</button>
-<p>
-  Select a JSON file with the following structure. Questions are grouped by
-  subject and then by source year.
-</p>
-<pre>{@html `{"subjects":{
+<main>
+  <h1>Import Question Bank</h1>
+  <input type="file" accept="application/json" on:change={handleFile} />
+  <button on:click={loadSample}>Load Sample Questions</button>
+  <p>
+    Select a JSON file with the following structure. Questions are grouped by
+    subject and then by source year.
+  </p>
+  <pre>{@html `{"subjects":{
   "生理學":{
     "110年醫學四":[
       {"id":1,"type":"single","question":"...","options":{"A":"..."},"answer":"A"}
     ]
   }
 }}`}</pre>
-
-<a href="/question-bank">View Questions</a>
+  <a href="/question-bank">View Questions</a>
+</main>
 
 <style>
 pre {
