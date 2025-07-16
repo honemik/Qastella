@@ -7,6 +7,10 @@
   } from '$lib/stores/questions';
   import { invoke } from '@tauri-apps/api/core';
 
+  /**
+   * Import questions from a user selected JSON file and merge them into the
+   * current question list.
+   */
   function handleFile(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -32,6 +36,9 @@
     reader.readAsText(file);
   }
 
+  /**
+   * Load the built in sample questions using a backend call.
+   */
   async function loadSample() {
     const data = (await invoke('sample_questions')) as QuestionBank;
     questions.set(flattenBank(data));

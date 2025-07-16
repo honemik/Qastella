@@ -24,12 +24,18 @@
   let answerValue: string = '';
   let dlg: HTMLDialogElement | null = null;
 
+  /**
+   * Open the edit dialog for an existing question.
+   */
   function openEdit(q: Question) {
     editing = { ...q };
     answerValue = Array.isArray(q.answer) ? (q.answer as string[]).join(',') : (q.answer as string);
     dlg?.showModal();
   }
 
+  /**
+   * Create a new blank question and open the editor dialog.
+   */
   function newQuestion() {
     const id = Math.max(0, ...get(questions).map((q) => q.id)) + 1;
     editing = {
@@ -45,6 +51,9 @@
     dlg?.showModal();
   }
 
+  /**
+   * Append an additional option field to the current question being edited.
+   */
   function addOption() {
     if (!editing) return;
     const opts = { ...(editing.options ?? {}) };
@@ -56,6 +65,9 @@
     editing = { ...editing, options: opts };
   }
 
+  /**
+   * Remove an option from the current question.
+   */
   function removeOption(key: string) {
     if (!editing || !editing.options) return;
     const opts = { ...editing.options };
@@ -63,6 +75,9 @@
     editing = { ...editing, options: opts };
   }
 
+  /**
+   * Save the current edit to the question list.
+   */
   function save() {
     if (!editing) return;
     editing.answer = answerValue;
@@ -79,6 +94,9 @@
     editing = null;
   }
 
+  /**
+   * Delete a question by id.
+   */
   function remove(id: number) {
     questions.update(list => list.filter(q => q.id !== id));
   }

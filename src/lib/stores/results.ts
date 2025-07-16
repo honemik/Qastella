@@ -24,18 +24,27 @@ export interface TimedExamResult extends ExamResult {
 
 export const history = writable<TimedExamResult[]>([]);
 
+/**
+ * Read the exam history from disk using the configured data directory.
+ */
 export async function loadHistory() {
   const dir = get(dataDir);
   const data = await invoke('load_history', { dir });
   history.set((data as TimedExamResult[]) ?? []);
 }
 
+/**
+ * Save the current history list to disk.
+ */
 export async function saveHistory() {
   const dir = get(dataDir);
   const list = get(history);
   await invoke('save_history', { dir, history: list });
 }
 
+/**
+ * Append a result to the history store and persist the change.
+ */
 export function addResultToHistory(res: ExamResult) {
   history.update((list) => [...list, { ...res, timestamp: new Date().toISOString() }]);
   saveHistory();

@@ -3,8 +3,12 @@
     import { examQuestions } from '$lib/stores/exam';
     import { lastResult, attemptCount, correctTotal, type AnswerRecord, addResultToHistory } from '$lib/stores/results';
 
+  // Stores selected answers keyed by question id
   let answers: Record<number, string> = {};
 
+  /**
+   * Grade the answers and store the result before moving to the result page.
+   */
   function submit() {
       const records: AnswerRecord[] = [];
       let correct = 0;

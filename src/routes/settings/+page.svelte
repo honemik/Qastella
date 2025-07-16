@@ -6,10 +6,16 @@
   let dir = '';
   $: dir = $dataDir;
 
+  /**
+   * Persist the input data directory path to the settings store.
+   */
   function updateDir() {
     dataDir.set(dir);
   }
 
+  /**
+   * Download the current question bank as a JSON file.
+   */
   function exportQuestions() {
     const data = JSON.stringify(getQuestionBank(), null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -20,6 +26,9 @@
     URL.revokeObjectURL(a.href);
   }
 
+  /**
+   * Download the exam history list as a JSON file.
+   */
   function exportHistory() {
     const data = JSON.stringify($history, null, 2);
     const blob = new Blob([data], { type: 'application/json' });

@@ -8,9 +8,19 @@
   const subject = writable('');
   const source = writable('');
 
-  const subjects = derived(questions, qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]);
-  const sources = derived(questions, qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]);
+  // Distinct list of subjects and sources for the selection dropdowns
+  const subjects = derived(
+    questions,
+    qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]
+  );
+  const sources = derived(
+    questions,
+    qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]
+  );
 
+  /**
+   * Prepare the selected subset of questions and navigate to the exam page.
+   */
   function start() {
     const subj = get(subject);
     const src = get(source);

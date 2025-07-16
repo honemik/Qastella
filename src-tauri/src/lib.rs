@@ -4,6 +4,7 @@ use serde_json::Value;
 use std::{collections::{HashMap, BTreeMap}, fs, path::PathBuf};
 use tauri::Manager;
 
+/// Example command exposed to the frontend for testing the bridge.
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -36,6 +37,7 @@ struct RExamResult {
     timestamp: String,
 }
 
+/// Return a small built in question bank used when no data exists yet.
 #[tauri::command]
 fn sample_questions() -> RQuestionBank {
     let mut opts = HashMap::new();
@@ -57,6 +59,7 @@ fn sample_questions() -> RQuestionBank {
     RQuestionBank { subjects: subj_map }
 }
 
+/// Determine the default directory used to store application data.
 #[tauri::command]
 fn default_data_dir(app_handle: tauri::AppHandle) -> Result<String, String> {
     Ok(app_handle
@@ -67,6 +70,7 @@ fn default_data_dir(app_handle: tauri::AppHandle) -> Result<String, String> {
         .to_string())
 }
 
+/// Helper to resolve a file path relative to either a custom directory or the application data dir.
 fn resolve_path(
     app_handle: &tauri::AppHandle,
     dir: Option<String>,
@@ -90,6 +94,7 @@ fn resolve_path(
     }
 }
 
+/// Load questions from the filesystem into a `RQuestionBank` structure.
 #[tauri::command]
 fn load_questions(
     app_handle: tauri::AppHandle,
@@ -102,6 +107,7 @@ fn load_questions(
     }
 }
 
+/// Save the provided question bank to disk.
 #[tauri::command]
 fn save_questions(
     app_handle: tauri::AppHandle,
@@ -117,6 +123,7 @@ fn save_questions(
     Ok(())
 }
 
+/// Load the exam history records from disk.
 #[tauri::command]
 fn load_history(
     app_handle: tauri::AppHandle,
@@ -129,6 +136,7 @@ fn load_history(
     }
 }
 
+/// Persist history records to disk.
 #[tauri::command]
 fn save_history(
     app_handle: tauri::AppHandle,
@@ -145,6 +153,7 @@ fn save_history(
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+/// Initialise Tauri and run the desktop application.
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())

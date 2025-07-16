@@ -3,7 +3,9 @@
   import { derived } from 'svelte/store';
   import { history } from '$lib/stores/results';
 
+  // Index of the history entry derived from the route parameter
   const idx = derived(page, ($p) => parseInt($p.params.idx));
+  // The history entry selected for review
   const entry = derived([history, idx], ([$history, id]) => $history[id]);
 </script>
 
