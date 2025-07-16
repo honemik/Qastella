@@ -30,8 +30,8 @@
         await saveAll();
         // remove the listener before triggering another close
         if (unlisten) unlisten();
-        // destroy the window so the close event is not fired again
-        await win.destroy();
+        // close the window after removing the listener
+        await win.close();
       });
     })();
 
