@@ -15,8 +15,13 @@ struct RQuestion {
     question: String,
     options: Option<HashMap<String, String>>,
     answer: Value,
+}
+
+#[derive(Serialize, Deserialize)]
+struct RQuestionSet {
     source: Option<String>,
     subject: Option<String>,
+    questions: Vec<RQuestion>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,17 +39,19 @@ struct RExamResult {
 }
 
 #[tauri::command]
-fn sample_questions() -> Vec<RQuestion> {
+fn sample_questions() -> Vec<RQuestionSet> {
     let mut opts = HashMap::new();
     opts.insert("A".into(), "Yes".into());
     opts.insert("B".into(), "No".into());
-    vec![RQuestion {
-        id: 1,
-        question: "Example?".into(),
-        options: Some(opts),
-        answer: Value::String("A".into()),
+    vec![RQuestionSet {
         source: Some("Sample".into()),
         subject: Some("General".into()),
+        questions: vec![RQuestion {
+            id: 1,
+            question: "Example?".into(),
+            options: Some(opts),
+            answer: Value::String("A".into()),
+        }],
     }]
 }
 
@@ -85,7 +92,7 @@ fn resolve_path(
 fn load_questions(
     app_handle: tauri::AppHandle,
     dir: Option<String>,
-) -> Result<Vec<RQuestion>, String> {
+) -> Result<Vec<RQuestionSet>, String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
     match fs::read_to_string(path) {
         Ok(content) => serde_json::from_str(&content).map_err(|e| e.to_string()),
@@ -97,13 +104,13 @@ fn load_questions(
 fn save_questions(
     app_handle: tauri::AppHandle,
     dir: Option<String>,
-    questions: Vec<RQuestion>,
+    question_sets: Vec<RQuestionSet>,
 ) -> Result<(), String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
-    let data = serde_json::to_vec_pretty(&questions).map_err(|e| e.to_string())?;
+    let data = serde_json::to_vec_pretty(&question_sets).map_err(|e| e.to_string())?;
     fs::write(path, data).map_err(|e| e.to_string())?;
     Ok(())
 }

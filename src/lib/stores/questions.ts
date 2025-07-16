@@ -12,17 +12,62 @@ export interface Question {
   subject?: string;
 }
 
+export interface QuestionSet {
+  source?: string;
+  subject?: string;
+  questions: Omit<Question, 'source' | 'subject'>[];
+}
+
 export const questions = writable<Question[]>([]);
+
+function groupQuestions(list: Question[]): QuestionSet[] {
+  const map = new Map<
+    string | undefined,
+    Map<string | undefined, Omit<Question, 'source' | 'subject'>[]>
+  >();
+  for (const q of list) {
+    const subj = q.subject;
+    const src = q.source;
+    if (!map.has(subj)) {
+      map.set(subj, new Map());
+    }
+    const srcMap = map.get(subj)!;
+    if (!srcMap.has(src)) {
+      srcMap.set(src, []);
+    }
+    const { source: _s, subject: _b, ...rest } = q;
+    srcMap.get(src)!.push(rest);
+  }
+  const sets: QuestionSet[] = [];
+  for (const [subject, srcMap] of map.entries()) {
+    for (const [source, qs] of srcMap.entries()) {
+      sets.push({ subject, source, questions: qs });
+    }
+  }
+  return sets;
+}
 
 export async function saveQuestionBank() {
   const list = get(questions);
   const dir = get(dataDir);
-  await invoke('save_questions', { dir, questions: list });
+  const questionSets = groupQuestions(list);
+  await invoke('save_questions', { dir, question_sets: questionSets });
 }
 
 export async function loadQuestionBank() {
   const dir = get(dataDir);
   const data = await invoke('load_questions', { dir });
-  questions.set((data as Question[]) ?? []);
+  const sets = (data as QuestionSet[]) ?? [];
+  const flat: Question[] = [];
+  for (const set of sets) {
+    for (const q of set.questions) {
+      flat.push({ ...q, source: set.source, subject: set.subject });
+    }
+  }
+  questions.set(flat);
+}
+
+export function getQuestionSets() {
+  return groupQuestions(get(questions));
 }
 
