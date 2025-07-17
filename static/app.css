@@ -262,3 +262,82 @@ pre {
 .dashboard .quick a:hover {
   background: var(--nav-bg);
 }
+
+nav.bottom-nav {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border-radius: 3rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+nav.bottom-nav a {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--nav-text);
+  text-decoration: none;
+  transition: transform 0.2s, background 0.2s;
+}
+nav.bottom-nav a:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.25);
+}
+nav.bottom-nav svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dashboard {
+  position: relative;
+}
+.dashboard .shapes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: -1;
+}
+.dashboard .shapes div {
+  position: absolute;
+  background: var(--primary);
+  animation: float 12s linear infinite;
+}
+.dashboard .triangle {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 30px solid var(--primary);
+  top: 20%;
+  left: 10%;
+}
+.dashboard .circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  top: 40%;
+  right: 20%;
+  animation-delay: 2s;
+}
+.dashboard .square {
+  width: 30px;
+  height: 30px;
+  bottom: 30%;
+  right: 60%;
+  transform: rotate(45deg);
+  animation-delay: 6s;
+}
+@keyframes float {
+  0%,100% { transform: translate(0,0); }
+  25%,75% { transform: translate(30px,10px); }
+  50% { transform: translate(60px,20px); }
+}
