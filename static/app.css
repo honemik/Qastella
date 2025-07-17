@@ -61,6 +61,13 @@ nav.main-nav .nav-buttons {
   min-height: 40px;
 }
 
+nav.main-nav .nav-buttons.compact .label {
+  display: none;
+}
+nav.main-nav .nav-buttons.compact {
+  padding: 0.25rem;
+}
+
 nav.main-nav .nav-btn {
   text-decoration: none;
   color: var(--nav-text);
@@ -122,7 +129,7 @@ nav.main-nav .nav-btn .label {
   display: inline;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1200px) {
   nav.main-nav .nav-btn {
     padding: 0.5em;
   }

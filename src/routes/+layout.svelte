@@ -1,8 +1,21 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { initSettings } from '$lib/stores/settings';
-  import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
-  import { loadHistory, saveHistory } from '$lib/stores/results';
+import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
+import { loadHistory, saveHistory } from '$lib/stores/results';
+
+let navButtons: HTMLDivElement;
+
+function adjustNav() {
+  if (!navButtons) return;
+  const multiLine = navButtons.clientHeight > 40;
+  const halfWindow = window.innerWidth * 0.5;
+  if (multiLine || navButtons.clientWidth < halfWindow || window.innerWidth < 1200) {
+    navButtons.classList.add('compact');
+  } else {
+    navButtons.classList.remove('compact');
+  }
+}
 
   // Initial load of persistent data and save handlers
   onMount(() => {
@@ -23,16 +36,19 @@
       saveHistory();
     };
     window.addEventListener('beforeunload', unloadHandler);
+    window.addEventListener('resize', adjustNav);
+    adjustNav();
 
     return () => {
       window.removeEventListener('beforeunload', unloadHandler);
+      window.removeEventListener('resize', adjustNav);
     };
   });
 </script>
 
 <nav class="main-nav">
   <a class="brand nav-btn" href="/">Qastella</a>
-  <div class="nav-buttons">
+  <div class="nav-buttons" bind:this={navButtons}>
     <a class="nav-btn" href="/exam-config">
       <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
