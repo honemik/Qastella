@@ -24,6 +24,7 @@
   let editing: Question | null = null;
   let answerValue: string = '';
   let dlg: HTMLDialogElement | null = null;
+  let lightbox: string | null = null;
 
   /**
    * Open the edit dialog for an existing question.
@@ -118,7 +119,6 @@
   <h1>Question Bank</h1>
   {#if $questions.length === 0}
     <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
-    <a href="/add-question">New Question</a>
   {:else}
     <div class="filters">
       <input placeholder="Keyword" bind:value={$keyword} />
@@ -170,7 +170,6 @@
         {/each}
       </tbody>
     </table>
-    <a href="/add-question">New Question</a>
     <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
   {/if}
 </main>
@@ -195,8 +194,10 @@
       <div class="images thumbs">
         {#each editing.images as img, i (i)}
           <div class="img-wrapper" transition:fade>
-            <img src={img} alt="question image {i}" />
-            <button type="button" on:click={() => removeImage(i)}>x</button>
+            <button type="button" class="thumb" on:click={() => (lightbox = img)}>
+              <img src={img} alt="question image {i}" />
+            </button>
+            <button type="button" class="remove" on:click={() => removeImage(i)}>x</button>
           </div>
         {/each}
       </div>
@@ -216,5 +217,14 @@
   {/if}
 
 </dialog>
+{#if lightbox}
+  <button
+    type="button"
+    class="lightbox"
+    on:click={() => (lightbox = null)}
+  >
+    <img src={lightbox} alt="enlarged" />
+  </button>
+{/if}
 
 

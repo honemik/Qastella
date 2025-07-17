@@ -10,6 +10,7 @@
   let images: string[] = [];
   let source = '';
   let subject = '';
+  let lightbox: string | null = null;
 
   function clearForm() {
     questionText = '';
@@ -109,8 +110,10 @@
       <div class="images thumbs">
         {#each images as img, i (i)}
           <div class="img-wrapper" transition:fade>
-            <img src={img} alt="question image {i}" />
-            <button type="button" on:click={() => removeImage(i)}>x</button>
+            <button type="button" class="thumb" on:click={() => (lightbox = img)}>
+              <img src={img} alt="question image {i}" />
+            </button>
+            <button type="button" class="remove" on:click={() => removeImage(i)}>x</button>
           </div>
         {/each}
       </div>
@@ -130,6 +133,15 @@
     <button type="button" on:click={() => save(undefined, false)}>Save & Add Another</button>
     <button type="button" on:click={() => goto('/question-bank')}>Cancel</button>
   </form>
+  {#if lightbox}
+    <button
+      type="button"
+      class="lightbox"
+      on:click={() => (lightbox = null)}
+    >
+      <img src={lightbox} alt="enlarged" />
+    </button>
+  {/if}
 </main>
 
 <style>

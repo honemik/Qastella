@@ -31,13 +31,15 @@
 </script>
 
 <nav class="main-nav">
-  <a href="/">Dashboard</a>
-  <a href="/exam-config">Mock Exam</a>
-  <a href="/import-questionbank">Import Question Bank</a>
-  <a href="/question-bank">Question Bank</a>
-  <a href="/add-question">Add Question</a>
-  <a href="/history">History</a>
-  <a href="/settings">Settings</a>
+  <a class="brand" href="/">Qastella</a>
+  <div class="links">
+    <a href="/exam-config">Mock Exam</a>
+    <a href="/import-questionbank">Import Question Bank</a>
+    <a href="/question-bank">Question Bank</a>
+    <a href="/add-question">Add Question</a>
+    <a href="/history">History</a>
+    <a href="/settings">Settings</a>
+  </div>
 </nav>
 
 <slot />

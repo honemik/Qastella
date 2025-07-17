@@ -31,10 +31,17 @@ h1 {
 
 nav.main-nav {
   display: flex;
-  gap: 1rem;
-  background-color: var(--primary);
+  justify-content: space-between;
+  align-items: center;
+  background: var(--primary);
   color: var(--nav-text);
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+nav.main-nav .links {
+  display: flex;
+  gap: 1rem;
 }
 
 nav.main-nav a {
@@ -44,6 +51,11 @@ nav.main-nav a {
 
 nav.main-nav a:hover {
   text-decoration: underline;
+}
+
+nav.main-nav .brand {
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 input,
@@ -130,10 +142,16 @@ td {
   position: relative;
   display: inline-block;
 }
-.img-wrapper button {
+.img-wrapper .remove {
   position: absolute;
   top: 0;
   right: 0;
+}
+.img-wrapper .thumb {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 pre {
