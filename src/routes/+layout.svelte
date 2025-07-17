@@ -6,12 +6,13 @@ import { loadHistory, saveHistory } from '$lib/stores/results';
 
 let navButtons: HTMLDivElement;
 let navBar: HTMLElement;
-let maxWidth = 0;
+let baseHeight = 0;
 
 function adjustNav() {
   if (!navButtons || !navBar) return;
   const width = navBar.clientWidth;
-  const multiLine = navButtons.clientHeight > 40;
+  if (!baseHeight) baseHeight = navButtons.clientHeight;
+  const multiLine = navButtons.scrollHeight > baseHeight + 1;
   const compact =
     multiLine || (width <= 1000 && width <= window.innerWidth * 0.5);
   navButtons.classList.toggle('compact', compact);
