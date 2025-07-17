@@ -207,16 +207,19 @@
     </label>
     {#if editing.options}
       {#each Object.entries(editing.options) as [key, val]}
-        <label>
-          {key}: <input bind:value={editing.options![key]} />
-          <input
-            type={editing.type === 'single' ? 'radio' : 'checkbox'}
-            name="correctEdit"
-            checked={correct.includes(key)}
-            on:change={() => toggleCorrect(key)}
-          />
+        <div class="option-row">
+          <span>{key}: <input bind:value={editing.options![key]} /></span>
+          <label class="option-check {editing.type === 'single' ? 'radio' : 'checkbox'}">
+            <input
+              type={editing.type === 'single' ? 'radio' : 'checkbox'}
+              name="correctEdit"
+              checked={correct.includes(key)}
+              on:change={() => toggleCorrect(key)}
+            />
+            <span class="mark"></span>
+          </label>
           <button type="button" on:click={() => removeOption(key)}>x</button>
-        </label>
+        </div>
       {/each}
     {/if}
     <button type="button" on:click={addOption}>Add Option</button>

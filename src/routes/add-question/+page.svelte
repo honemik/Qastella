@@ -122,16 +122,19 @@
 
     {#if Object.keys(options).length}
       {#each Object.entries(options) as [key, val]}
-        <label>
-          {key}: <input bind:value={options[key]} />
-          <input
-            type={qType === 'single' ? 'radio' : 'checkbox'}
-            name="correct"
-            checked={correct.includes(key)}
-            on:change={() => toggleCorrect(key)}
-          />
+        <div class="option-row">
+          <span>{key}: <input bind:value={options[key]} /></span>
+          <label class="option-check {qType === 'single' ? 'radio' : 'checkbox'}">
+            <input
+              type={qType === 'single' ? 'radio' : 'checkbox'}
+              name="correct"
+              checked={correct.includes(key)}
+              on:change={() => toggleCorrect(key)}
+            />
+            <span class="mark"></span>
+          </label>
           <button type="button" on:click={() => removeOption(key)}>x</button>
-        </label>
+        </div>
       {/each}
     {/if}
     <button type="button" on:click={addOption}>Add Option</button>
