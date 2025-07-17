@@ -6,6 +6,7 @@
 
   // Stores selected answers keyed by question id
   let answers: Record<number, string> = {};
+  let lightbox: string | null = null;
 
   /**
    * Grade the answers and store the result before moving to the result page.
@@ -41,7 +42,7 @@
           {#if q.images}
             <div class="images">
               {#each q.images as img}
-                <img src={img} alt="" transition:fade />
+                <img src={img} alt="" transition:fade on:click={() => (lightbox = img)} />
               {/each}
             </div>
           {/if}
@@ -62,6 +63,11 @@
       {/each}
       <button type="submit">Submit</button>
     </form>
+  {/if}
+  {#if lightbox}
+    <div class="lightbox" on:click={() => (lightbox = null)} transition:fade>
+      <img src={lightbox} alt="enlarged" />
+    </div>
   {/if}
 </main>
 

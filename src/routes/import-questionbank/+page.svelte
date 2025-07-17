@@ -63,9 +63,4 @@
   <a href="/question-bank">View Questions</a>
 </main>
 
-<style>
-pre {
-  background-color: #eee;
-  padding: 1em;
-}
-</style>
+

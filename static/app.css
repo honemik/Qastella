@@ -2,11 +2,14 @@
   --primary: #3f51b5;
   --background: #fafafa;
   --text: #333;
+  --code-bg: #eee;
+  --nav-text: #fff;
 }
 
 .dark {
   --background: #121212;
   --text: #eee;
+  --code-bg: #333;
 }
 
 body {
@@ -30,11 +33,12 @@ nav.main-nav {
   display: flex;
   gap: 1rem;
   background-color: var(--primary);
+  color: var(--nav-text);
   padding: 0.75rem 1rem;
 }
 
 nav.main-nav a {
-  color: #fff;
+  color: var(--nav-text);
   text-decoration: none;
 }
 
@@ -124,4 +128,56 @@ td {
   position: absolute;
   top: 0;
   right: 0;
+}
+
+pre {
+  background: var(--code-bg);
+  color: var(--text);
+  padding: 1em;
+  overflow-x: auto;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 10px #000;
+}
+
+.dashboard .stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.dashboard .stats div {
+  flex: 1;
+  text-align: center;
+  background: var(--primary);
+  color: #fff;
+  padding: 1rem;
+  border-radius: 6px;
+}
+.dashboard .quick {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.dashboard .quick a {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.75em 1.2em;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.dashboard .quick a:hover {
+  opacity: 0.9;
 }

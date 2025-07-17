@@ -4,6 +4,8 @@
   import { history } from '$lib/stores/results';
   import { fade } from 'svelte/transition';
 
+  let lightbox: string | null = null;
+
   // Index of the history entry derived from the route parameter
   const idx = derived(page, ($p) => parseInt($p.params.idx));
   // The history entry selected for review
@@ -19,7 +21,7 @@
         {#if rec.question.images}
           <div class="images">
             {#each rec.question.images as img}
-              <img src={img} alt="" transition:fade />
+              <img src={img} alt="" transition:fade on:click={() => (lightbox = img)} />
             {/each}
           </div>
         {/if}
@@ -47,6 +49,11 @@
     {/each}
   {:else}
     <p>Exam not found.</p>
+  {/if}
+  {#if lightbox}
+    <div class="lightbox" on:click={() => (lightbox = null)} transition:fade>
+      <img src={lightbox} alt="enlarged" />
+    </div>
   {/if}
 </main>
 

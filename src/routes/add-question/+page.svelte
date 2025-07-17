@@ -11,6 +11,15 @@
   let source = '';
   let subject = '';
 
+  function clearForm() {
+    questionText = '';
+    answerValue = '';
+    options = { A: '', B: '' };
+    images = [];
+    source = '';
+    subject = '';
+  }
+
   function addOption() {
     const letters = Object.keys(options);
     const next = letters.length
@@ -56,7 +65,7 @@
     images = images.filter((_, idx) => idx !== i);
   }
 
-  function save() {
+  function save(ev?: Event, redirect = true) {
     const list = get(questions);
     const id = Math.max(0, ...list.map(q => q.id)) + 1;
     const q: Question = {
@@ -70,7 +79,11 @@
       subject
     };
     questions.set([...list, q]);
-    goto('/question-bank');
+    if (redirect) {
+      goto('/question-bank');
+    } else {
+      clearForm();
+    }
   }
 </script>
 
@@ -114,6 +127,7 @@
     <label>Source <input bind:value={source} /></label>
     <label>Subject <input bind:value={subject} /></label>
     <button type="submit">Save</button>
+    <button type="button" on:click={() => save(undefined, false)}>Save & Add Another</button>
     <button type="button" on:click={() => goto('/question-bank')}>Cancel</button>
   </form>
 </main>

@@ -8,12 +8,12 @@
   );
 </script>
 
-<main class="container">
+<main class="container dashboard">
   <h1>Qastella Dashboard</h1>
   <section class="stats">
-    <p>Total Questions: {$questions.length}</p>
-    <p>Attempts: {$attemptCount}</p>
-    <p>Accuracy: {$accuracy}%</p>
+    <div>Total Questions: {$questions.length}</div>
+    <div>Attempts: {$attemptCount}</div>
+    <div>Accuracy: {$accuracy}%</div>
   </section>
   {#if $lastResult}
     <section class="recent">
