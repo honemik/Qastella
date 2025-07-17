@@ -7,6 +7,7 @@ import { loadHistory, saveHistory } from '$lib/stores/results';
 let navButtons: HTMLDivElement;
 let navBar: HTMLElement;
 let maxWidth = 0;
+let rowHeight = 0;
 let isCompact = false;
 
 function setCompact(newState: boolean) {
@@ -22,9 +23,10 @@ function setCompact(newState: boolean) {
 function adjustNav() {
   if (!navButtons || !navBar) return;
   const width = navBar.clientWidth;
-  const first = navButtons.firstElementChild as HTMLElement;
-  const last = navButtons.lastElementChild as HTMLElement;
-  const wrapped = last && first ? last.offsetTop > first.offsetTop : false;
+  if (!rowHeight) {
+    rowHeight = navButtons.clientHeight;
+  }
+  const wrapped = navButtons.scrollHeight > rowHeight + 1;
 
   if (!isCompact) {
     maxWidth = Math.max(maxWidth, width);
@@ -32,7 +34,7 @@ function adjustNav() {
       setCompact(true);
     }
   } else {
-    if (width > maxWidth * 0.55 && !wrapped) {
+    if (width > maxWidth * 0.6 && !wrapped) {
       setCompact(false);
       maxWidth = width;
     }
@@ -59,7 +61,11 @@ function adjustNav() {
     };
     window.addEventListener('beforeunload', unloadHandler);
     window.addEventListener('resize', adjustNav);
-    adjustNav();
+    // capture base row height once layout is rendered
+    requestAnimationFrame(() => {
+      rowHeight = navButtons.clientHeight;
+      adjustNav();
+    });
 
     return () => {
       window.removeEventListener('beforeunload', unloadHandler);
