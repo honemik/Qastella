@@ -44,7 +44,6 @@ nav.main-nav {
   background: var(--nav-bg);
   color: var(--nav-text);
   padding: 0.5rem 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 nav.main-nav .nav-buttons {
@@ -55,46 +54,55 @@ nav.main-nav .nav-buttons {
   justify-content: space-around;
   border-radius: 10px;
   padding: 0 0.5rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35), 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
 nav.main-nav .nav-btn {
   text-decoration: none;
-  color: #fff;
-  font-size: 1rem;
+  color: var(--nav-text);
+  font-size: 0.9rem;
   font-weight: bold;
   position: relative;
   margin: 0 0.25rem;
-  padding: 0 0.75rem;
-  height: 2.3em;
+  padding: 0.5em 1.25em;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.625em;
-  overflow: hidden;
-  transition: transform 0.3s;
+  border-radius: 50px;
+  background: #fff;
+  box-shadow: 0 0 8px rgb(0 0 0 / 5%);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.5s ease;
 }
 
 nav.main-nav .nav-btn:hover {
-  transform: translateY(-3px);
-  color: var(--primary);
+  letter-spacing: 2px;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 7px 29px rgba(93, 24, 220, 0.5);
 }
 
 nav.main-nav .nav-btn::after {
   content: "";
-  background: #fff;
+  background: var(--primary);
   position: absolute;
   z-index: -1;
-  left: -20%;
-  right: -20%;
+  left: 0;
+  right: 0;
   top: 0;
   bottom: 0;
-  transform: skewX(-45deg) scale(0, 1);
-  transition: all 0.5s;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
 }
 
 nav.main-nav .nav-btn:hover::after {
-  transform: skewX(-45deg) scale(1, 1);
+  transform: scaleX(1);
+}
+
+nav.main-nav .nav-btn:active {
+  transform: translateY(4px);
+  box-shadow: none;
 }
 
 nav.main-nav .brand {
@@ -108,50 +116,41 @@ input,
 select,
 button {
   font-size: 1rem;
-  padding: 0.4em 0.6em;
-  margin: 0.25em 0;
-  border-radius: 4px;
 }
 input,
 select {
+  padding: 0.4em 0.6em;
+  margin: 0.25em 0;
+  border-radius: 4px;
   border: 1px solid #ccc;
 }
 
 button {
+  padding: 0.6em 1.25em;
   margin: 0.5em;
-  background: var(--primary);
-  color: var(--nav-text);
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 50px;
+  background: #fff;
+  color: var(--nav-text);
+  box-shadow: 0 0 8px rgb(0 0 0 / 5%);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
   cursor: pointer;
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-  transition: transform 0.3s;
+  transition: all 0.5s ease;
 }
 
 button:hover {
-  color: var(--primary);
-  transform: translateY(-2px);
+  letter-spacing: 2px;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 7px 29px rgba(93, 24, 220, 0.5);
 }
 
-button::after {
-  content: "";
-  background: var(--nav-text);
-  position: absolute;
-  z-index: -1;
-  left: -20%;
-  right: -20%;
-  top: 0;
-  bottom: 0;
-  transform: skewX(-45deg) scale(0, 1);
-  transition: all 0.5s;
-}
-
-button:hover::after {
-  transform: skewX(-45deg) scale(1, 1);
+button:active {
+  transform: translateY(4px);
+  box-shadow: none;
+  transition: 100ms;
 }
 
 label {
@@ -200,6 +199,9 @@ td {
   margin: 0;
   background: none;
   border: none;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
   cursor: pointer;
   color: inherit;
 }
@@ -226,6 +228,8 @@ td {
   margin: 0;
   background: none;
   border: none;
+  padding: 0;
+  box-shadow: none;
 }
 .img-wrapper .thumb {
   width: auto;
@@ -234,6 +238,7 @@ td {
   background: none;
   border: none;
   padding: 0;
+  box-shadow: none;
   cursor: pointer;
   position: static;
 }
@@ -297,48 +302,3 @@ pre {
   background: var(--nav-bg);
 }
 
-.dashboard {
-  position: relative;
-}
-.dashboard .shapes {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: -1;
-}
-.dashboard .shapes div {
-  position: absolute;
-  background: var(--primary);
-  animation: float 12s linear infinite;
-}
-.dashboard .triangle {
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 30px solid var(--primary);
-  top: 20%;
-  left: 10%;
-}
-.dashboard .circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  top: 40%;
-  right: 20%;
-  animation-delay: 2s;
-}
-.dashboard .square {
-  width: 30px;
-  height: 30px;
-  bottom: 30%;
-  right: 60%;
-  transform: rotate(45deg);
-  animation-delay: 6s;
-}
-@keyframes float {
-  0%,100% { transform: translate(0,0); }
-  25%,75% { transform: translate(30px,10px); }
-  50% { transform: translate(60px,20px); }
-}

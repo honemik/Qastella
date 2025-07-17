@@ -7,15 +7,25 @@
   {#if $history.length === 0}
     <p>No exam history.</p>
   {:else}
-    <ul>
-      {#each $history as item, i}
-        <li>
-          <a href={`/review/${i}`}
-            >{new Date(item.timestamp).toLocaleString()} -
-            {item.records.filter((r) => r.correct).length}/{item.records.length}</a
-          >
-        </li>
-      {/each}
-    </ul>
+    <table class="history">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Score</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each $history as item, i}
+          <tr>
+            <td>{new Date(item.timestamp).toLocaleString()}</td>
+            <td>
+              {item.records.filter((r) => r.correct).length}/{item.records.length}
+            </td>
+            <td><a class="nav-btn" href={`/review/${i}`}>Review</a></td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
   {/if}
 </main>

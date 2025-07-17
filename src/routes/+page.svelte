@@ -31,11 +31,6 @@
     <a href="/import-questionbank">Import Question Bank</a>
     <a href="/question-bank">Manage Bank</a>
   </nav>
-  <div class="shapes">
-    <div class="triangle"></div>
-    <div class="circle"></div>
-    <div class="square"></div>
-  </div>
 </main>
 
 
