@@ -47,21 +47,54 @@ nav.main-nav {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-nav.main-nav .links {
+nav.main-nav .nav-buttons {
   display: flex;
-  gap: 0.75rem;
-}
-
-nav.main-nav a {
-  color: var(--nav-text);
-  text-decoration: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-nav.main-nav a:hover {
   background: var(--primary);
-  color: var(--nav-text);
+  height: 40px;
+  align-items: center;
+  justify-content: space-around;
+  border-radius: 10px;
+  padding: 0 0.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35), 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+nav.main-nav .nav-btn {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  position: relative;
+  margin: 0 0.25rem;
+  padding: 0 0.75rem;
+  height: 2.3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.625em;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+nav.main-nav .nav-btn:hover {
+  transform: translateY(-3px);
+  color: var(--primary);
+}
+
+nav.main-nav .nav-btn::after {
+  content: "";
+  background: #fff;
+  position: absolute;
+  z-index: -1;
+  left: -20%;
+  right: -20%;
+  top: 0;
+  bottom: 0;
+  transform: skewX(-45deg) scale(0, 1);
+  transition: all 0.5s;
+}
+
+nav.main-nav .nav-btn:hover::after {
+  transform: skewX(-45deg) scale(1, 1);
 }
 
 nav.main-nav .brand {
@@ -259,41 +292,9 @@ pre {
   text-decoration: none;
   transition: background 0.3s;
 }
+
 .dashboard .quick a:hover {
   background: var(--nav-bg);
-}
-
-nav.bottom-nav {
-  position: fixed;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border-radius: 3rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-nav.bottom-nav a {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--nav-text);
-  text-decoration: none;
-  transition: transform 0.2s, background 0.2s;
-}
-nav.bottom-nav a:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.25);
-}
-nav.bottom-nav svg {
-  width: 24px;
-  height: 24px;
 }
 
 .dashboard {
