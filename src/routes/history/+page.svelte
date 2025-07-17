@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { history } from '$lib/stores/results';
+  import { history, deleteHistoryItem } from '$lib/stores/results';
   import { goto } from '$app/navigation';
 </script>
 
@@ -30,6 +30,12 @@
                 on:click={() => goto(`/review/${i}`)}
               >
                 Review
+              </button>
+              <button
+                type="button"
+                on:click={() => deleteHistoryItem(i)}
+              >
+                Delete
               </button>
             </td>
           </tr>

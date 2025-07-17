@@ -50,4 +50,16 @@ export function addResultToHistory(res: ExamResult) {
   saveHistory();
 }
 
+/**
+ * Remove a history entry by index and persist the change.
+ */
+export function deleteHistoryItem(index: number) {
+  history.update((list) => {
+    const copy = [...list];
+    copy.splice(index, 1);
+    return copy;
+  });
+  saveHistory();
+}
+
 

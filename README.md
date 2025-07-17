@@ -36,5 +36,5 @@ The project uses SvelteKit with adapter-static and Tauri 2. Most of the applicat
 2. **Manage Bank** – The *Question Bank* page lets you edit or delete questions. Remember to click *Save Bank* to persist your changes.
 3. **Add Question** – Use the *Add Question* page to quickly paste text and images when creating new questions.
 4. **Start Exam** – Visit *Mock Exam* to configure the number of questions and start a practice session. After submitting you will see your score.
-5. **Review History** – The *History* page lists past attempts. Click an entry to see detailed answers.
+5. **Review History** – The *History* page lists past attempts. Click an entry to see detailed answers or delete unwanted records.
 6. **Settings** – Change the data directory, export your questions and history, and toggle dark mode.
