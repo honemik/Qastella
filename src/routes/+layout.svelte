@@ -7,7 +7,6 @@ import { loadHistory, saveHistory } from '$lib/stores/results';
 let navButtons: HTMLDivElement;
 let navBar: HTMLElement;
 let maxWidth = 0;
-let rowHeight = 0;
 let isCompact = false;
 
 function setCompact(newState: boolean) {
@@ -23,21 +22,14 @@ function setCompact(newState: boolean) {
 function adjustNav() {
   if (!navButtons || !navBar) return;
   const width = navBar.clientWidth;
-  if (!rowHeight) {
-    rowHeight = navButtons.clientHeight;
+  if (maxWidth === 0 || (!isCompact && width > maxWidth)) {
+    maxWidth = width;
   }
-  const wrapped = navButtons.scrollHeight > rowHeight + 1;
-
-  if (!isCompact) {
-    maxWidth = Math.max(maxWidth, width);
-    if (wrapped || width < maxWidth * 0.5) {
-      setCompact(true);
-    }
-  } else {
-    if (width > maxWidth * 0.6 && !wrapped) {
-      setCompact(false);
-      maxWidth = width;
-    }
+  if (!isCompact && width < maxWidth * 0.6) {
+    setCompact(true);
+  } else if (isCompact && width > maxWidth * 0.7) {
+    setCompact(false);
+    maxWidth = width;
   }
 }
 
@@ -61,11 +53,7 @@ function adjustNav() {
     };
     window.addEventListener('beforeunload', unloadHandler);
     window.addEventListener('resize', adjustNav);
-    // capture base row height once layout is rendered
-    requestAnimationFrame(() => {
-      rowHeight = navButtons.clientHeight;
-      adjustNav();
-    });
+    requestAnimationFrame(adjustNav);
 
     return () => {
       window.removeEventListener('beforeunload', unloadHandler);

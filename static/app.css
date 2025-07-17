@@ -56,7 +56,8 @@ nav.main-nav .nav-buttons {
   justify-content: space-around;
   border-radius: 10px;
   padding: 0 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 0.25rem;
   min-height: 40px;
 }
