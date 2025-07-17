@@ -3,12 +3,14 @@
   --text: #000;
   --code-bg: #f0f0f0;
   --nav-text: #fff;
+  --primary: #00AA90; /* Nippon color Aotake */
 }
 
 .dark {
   --background: #000;
   --text: #fff;
   --code-bg: #333;
+  --primary: #007B65;
 }
 
 body {
@@ -32,7 +34,7 @@ nav.main-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #000;
+  background: var(--primary);
   color: var(--nav-text);
   padding: 0.5rem 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -57,34 +59,40 @@ nav.main-nav .brand {
   font-size: 1.2rem;
 }
 
-.button-container {
-  display: flex;
-  background-color: #000;
-  width: 250px;
-  height: 40px;
-  align-items: center;
-  justify-content: space-around;
-  border-radius: 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-}
 
-.button {
-  outline: 0 !important;
-  border: 0 !important;
-  width: 40px;
-  height: 40px;
+.nav-btn {
+  outline: 0;
+  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
-  background-color: transparent;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  transition: all ease-in-out 0.3s;
+  color: var(--nav-text);
+  position: relative;
   cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.3s;
 }
 
-.button:hover {
+.nav-btn:hover {
   transform: translateY(-3px);
+}
+
+.nav-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+
+.nav-btn:hover::after {
+  transform: scaleX(1);
 }
 
 .icon {
@@ -108,8 +116,8 @@ button {
   width: 6.5em;
   height: 2.3em;
   margin: 0.5em;
-  background: #000;
-  color: #fff;
+  background: var(--primary);
+  color: var(--nav-text);
   border: none;
   border-radius: 0.625em;
   font-size: 20px;
@@ -122,13 +130,13 @@ button {
 }
 
 button:hover {
-  color: #000;
+  color: var(--primary);
   transform: translateY(-2px);
 }
 
 button::after {
   content: "";
-  background: #fff;
+  background: var(--nav-text);
   position: absolute;
   z-index: -1;
   left: -20%;
@@ -261,8 +269,8 @@ pre {
 .dashboard .stats div {
   flex: 1;
   text-align: center;
-  background: #000;
-  color: #fff;
+  background: var(--primary);
+  color: var(--nav-text);
   padding: 1rem;
   border-radius: 6px;
   transition: transform 0.3s;
@@ -274,13 +282,13 @@ pre {
   flex-wrap: wrap;
 }
 .dashboard .quick a {
-  background: #000;
-  color: #fff;
+  background: var(--primary);
+  color: var(--nav-text);
   padding: 0.75em 1.2em;
   border-radius: 4px;
   text-decoration: none;
   transition: background 0.3s;
 }
 .dashboard .quick a:hover {
-  background: #444;
+  background: #055C47;
 }
