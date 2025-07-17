@@ -9,12 +9,14 @@ let navBar: HTMLElement;
 let maxWidth = 0;
 
 function adjustNav() {
-  if (!navButtons) return;
-  if (maxWidth === 0) maxWidth = navButtons.scrollWidth;
+  if (!navButtons || !navBar) return;
   const multiLine = navButtons.clientHeight > 40;
-  const compact = multiLine || navButtons.clientWidth < maxWidth * 0.5;
+  const compact = multiLine || navBar.clientWidth < maxWidth * 0.5;
   navButtons.classList.toggle('compact', compact);
-  navBar?.classList.toggle('compact', compact);
+  navBar.classList.toggle('compact', compact);
+  if (!compact) {
+    maxWidth = Math.max(maxWidth, navBar.clientWidth);
+  }
 }
 
   // Initial load of persistent data and save handlers
