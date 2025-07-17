@@ -37,7 +37,7 @@
   {:else}
     <form on:submit|preventDefault={submit}>
       {#each $examQuestions as q (q.id)}
-        <div class="question" transition:fade>
+        <div class="question review-card" transition:fade>
           <p>{q.question}</p>
           {#if q.images}
             <div class="images">

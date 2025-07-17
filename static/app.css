@@ -52,13 +52,13 @@ nav.main-nav {
 nav.main-nav .nav-buttons {
   display: flex;
   background: var(--primary);
-  height: 40px;
   align-items: center;
   justify-content: space-around;
   border-radius: 10px;
   padding: 0 0.5rem;
   flex-wrap: wrap;
   gap: 0.25rem;
+  min-height: 40px;
 }
 
 nav.main-nav .nav-btn {
@@ -128,6 +128,12 @@ nav.main-nav .nav-btn .label {
   }
   nav.main-nav .nav-btn .label {
     display: none;
+  }
+  nav.main-nav .nav-buttons {
+    padding: 0.25rem;
+  }
+  nav.main-nav .brand {
+    font-size: 1rem;
   }
 }
 
