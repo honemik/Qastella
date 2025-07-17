@@ -9,6 +9,7 @@
   --nav-bg: var(--c3);
   --nav-text: #000;
   --primary: var(--c4);
+  --shadow: rgba(217, 162, 153, 0.5);
 }
 
 .dark {
@@ -18,6 +19,7 @@
   --nav-bg: #111;
   --nav-text: #fff;
   --primary: var(--c3);
+  --shadow: rgba(217, 162, 153, 0.5);
 }
 
 body {
@@ -79,7 +81,7 @@ nav.main-nav .nav-btn:hover {
   letter-spacing: 2px;
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 7px 29px rgba(93, 24, 220, 0.5);
+  box-shadow: 0 7px 29px var(--shadow);
 }
 
 nav.main-nav .nav-btn::after {
@@ -87,6 +89,7 @@ nav.main-nav .nav-btn::after {
   background: var(--primary);
   position: absolute;
   z-index: -1;
+  border-radius: inherit;
   left: 0;
   right: 0;
   top: 0;
@@ -144,7 +147,7 @@ button:hover {
   letter-spacing: 2px;
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 7px 29px rgba(93, 24, 220, 0.5);
+  box-shadow: 0 7px 29px var(--shadow);
 }
 
 button:active {
@@ -290,15 +293,6 @@ pre {
   flex-wrap: wrap;
 }
 .dashboard .quick a {
-  background: var(--primary);
-  color: var(--nav-text);
-  padding: 0.75em 1.2em;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background 0.3s;
-}
-
-.dashboard .quick a:hover {
-  background: var(--nav-bg);
+  margin: 0.25em;
 }
 

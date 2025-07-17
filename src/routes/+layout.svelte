@@ -31,7 +31,7 @@
 </script>
 
 <nav class="main-nav">
-  <a class="brand" href="/">Qastella</a>
+  <a class="brand nav-btn" href="/">Qastella</a>
   <div class="nav-buttons">
     <a class="nav-btn" href="/exam-config">Mock Exam</a>
     <a class="nav-btn" href="/import-questionbank">Import Question Bank</a>
