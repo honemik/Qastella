@@ -5,16 +5,16 @@ import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
 import { loadHistory, saveHistory } from '$lib/stores/results';
 
 let navButtons: HTMLDivElement;
+let navBar: HTMLElement;
+let maxWidth = 0;
 
 function adjustNav() {
   if (!navButtons) return;
+  if (maxWidth === 0) maxWidth = navButtons.scrollWidth;
   const multiLine = navButtons.clientHeight > 40;
-  const halfWindow = window.innerWidth * 0.5;
-  if (multiLine || navButtons.clientWidth < halfWindow || window.innerWidth < 1200) {
-    navButtons.classList.add('compact');
-  } else {
-    navButtons.classList.remove('compact');
-  }
+  const compact = multiLine || navButtons.clientWidth < maxWidth * 0.5;
+  navButtons.classList.toggle('compact', compact);
+  navBar?.classList.toggle('compact', compact);
 }
 
   // Initial load of persistent data and save handlers
@@ -46,7 +46,7 @@ function adjustNav() {
   });
 </script>
 
-<nav class="main-nav">
+<nav class="main-nav" bind:this={navBar}>
   <a class="brand nav-btn" href="/">Qastella</a>
   <div class="nav-buttons" bind:this={navButtons}>
     <a class="nav-btn" href="/exam-config">
