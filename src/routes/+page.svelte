@@ -2,6 +2,7 @@
   import { derived } from 'svelte/store';
   import { questions } from '$lib/stores/questions';
   import { lastResult, attemptCount, correctTotal } from '$lib/stores/results';
+  import { goto } from '$app/navigation';
 
   const accuracy = derived([correctTotal, attemptCount], ([$c, $a]) =>
     $a === 0 ? 0 : Math.round(($c / $a) * 100)
@@ -27,9 +28,9 @@
     </section>
   {/if}
   <nav class="quick">
-    <a class="nav-btn" href="/exam-config">Start Mock Exam</a>
-    <a class="nav-btn" href="/import-questionbank">Import Question Bank</a>
-    <a class="nav-btn" href="/question-bank">Manage Bank</a>
+    <button class="nav-btn" type="button" on:click={() => goto('/exam-config')}>Start Mock Exam</button>
+    <button class="nav-btn" type="button" on:click={() => goto('/import-questionbank')}>Import Question Bank</button>
+    <button class="nav-btn" type="button" on:click={() => goto('/question-bank')}>Manage Bank</button>
   </nav>
 </main>
 

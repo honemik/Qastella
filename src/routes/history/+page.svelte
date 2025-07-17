@@ -1,5 +1,6 @@
 <script lang="ts">
   import { history } from '$lib/stores/results';
+  import { goto } from '$app/navigation';
 </script>
 
 <main>
@@ -22,7 +23,15 @@
             <td>
               {item.records.filter((r) => r.correct).length}/{item.records.length}
             </td>
-            <td><a class="nav-btn" href={`/review/${i}`}>Review</a></td>
+            <td>
+              <button
+                class="nav-btn"
+                type="button"
+                on:click={() => goto(`/review/${i}`)}
+              >
+                Review
+              </button>
+            </td>
           </tr>
         {/each}
       </tbody>

@@ -33,6 +33,7 @@ main {
   max-width: 800px;
   margin: auto;
   padding: 1rem;
+  overflow-x: auto;
 }
 
 h1 {
@@ -56,6 +57,8 @@ nav.main-nav .nav-buttons {
   justify-content: space-around;
   border-radius: 10px;
   padding: 0 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 nav.main-nav .nav-btn {

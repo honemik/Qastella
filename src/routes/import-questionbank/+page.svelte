@@ -60,7 +60,6 @@
     ]
   }
 }}`}</pre>
-  <a href="/question-bank">View Questions</a>
 </main>
 
 
