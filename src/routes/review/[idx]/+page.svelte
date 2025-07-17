@@ -15,8 +15,9 @@
 <main>
   <h1>Exam Review</h1>
   {#if $entry}
-    {#each $entry.records as rec (rec.question.id)}
-      <div class="question" transition:fade>
+    {#each $entry.records as rec, i (rec.question.id)}
+      <article class="review-card" transition:fade>
+        <h2>Question {i + 1}</h2>
         <p>{rec.question.question}</p>
         {#if rec.question.images}
           <div class="images">
@@ -51,7 +52,7 @@
           <p>Correct answer: {rec.question.answer}</p>
           <p>Your answer: {rec.answer}</p>
         {/if}
-      </div>
+      </article>
     {/each}
   {:else}
     <p>Exam not found.</p>
