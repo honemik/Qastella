@@ -14,7 +14,13 @@
         {#if rec.question.images}
           <div class="images">
             {#each rec.question.images as img}
-              <img src={img} alt="" transition:fade on:click={() => (lightbox = img)} />
+              <button
+                type="button"
+                class="img-thumb"
+                on:click={() => (lightbox = img)}
+              >
+                <img src={img} alt="" transition:fade />
+              </button>
             {/each}
           </div>
         {/if}
@@ -44,9 +50,14 @@
     <p>No results.</p>
   {/if}
   {#if lightbox}
-    <div class="lightbox" on:click={() => (lightbox = null)} transition:fade>
+    <button
+      type="button"
+      class="lightbox"
+      on:click={() => (lightbox = null)}
+      transition:fade
+    >
       <img src={lightbox} alt="enlarged" />
-    </div>
+    </button>
   {/if}
 </main>
 
