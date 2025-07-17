@@ -2,6 +2,7 @@
     import { goto } from '$app/navigation';
     import { examQuestions } from '$lib/stores/exam';
     import { lastResult, attemptCount, correctTotal, type AnswerRecord, addResultToHistory } from '$lib/stores/results';
+    import { fade } from 'svelte/transition';
 
   // Stores selected answers keyed by question id
   let answers: Record<number, string> = {};
@@ -35,8 +36,15 @@
   {:else}
     <form on:submit|preventDefault={submit}>
       {#each $examQuestions as q (q.id)}
-        <div class="question">
+        <div class="question" transition:fade>
           <p>{q.question}</p>
+          {#if q.images}
+            <div class="images">
+              {#each q.images as img}
+                <img src={img} alt="" transition:fade />
+              {/each}
+            </div>
+          {/if}
           {#if q.options}
             {#each Object.entries(q.options) as [key, text]}
               <label>
@@ -56,5 +64,7 @@
     </form>
   {/if}
 </main>
+
+
 
 

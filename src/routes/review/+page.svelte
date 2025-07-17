@@ -1,13 +1,21 @@
 <script lang="ts">
   import { lastResult } from '$lib/stores/results';
+  import { fade } from 'svelte/transition';
 </script>
 
 <main>
   <h1>Exam Review</h1>
   {#if $lastResult}
     {#each $lastResult.records as rec (rec.question.id)}
-      <div class="question">
+      <div class="question" transition:fade>
         <p>{rec.question.question}</p>
+        {#if rec.question.images}
+          <div class="images">
+            {#each rec.question.images as img}
+              <img src={img} alt="" transition:fade />
+            {/each}
+          </div>
+        {/if}
         {#if rec.question.options}
           <ul>
             {#each Object.entries(rec.question.options) as [key, text]}
@@ -34,5 +42,6 @@
     <p>No results.</p>
   {/if}
 </main>
+
 
 

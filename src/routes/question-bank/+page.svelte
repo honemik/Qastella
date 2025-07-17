@@ -1,6 +1,7 @@
 <script lang="ts">
   import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
-  import { writable, derived, get } from 'svelte/store';
+  import { writable, derived } from 'svelte/store';
+  import { fade } from 'svelte/transition';
 
   const keyword = writable('');
   const subjectFilter = writable('');
@@ -33,23 +34,6 @@
     dlg?.showModal();
   }
 
-  /**
-   * Create a new blank question and open the editor dialog.
-   */
-  function newQuestion() {
-    const id = Math.max(0, ...get(questions).map((q) => q.id)) + 1;
-    editing = {
-      id,
-      type: 'single',
-      question: '',
-      options: { A: '', B: '' },
-      answer: '',
-      source: '',
-      subject: ''
-    };
-    answerValue = '';
-    dlg?.showModal();
-  }
 
   /**
    * Append an additional option field to the current question being edited.
@@ -73,6 +57,34 @@
     const opts = { ...editing.options };
     delete opts[key];
     editing = { ...editing, options: opts };
+  }
+
+  /**
+   * Append selected image files to the current question.
+   */
+  function addImages(event: Event) {
+    if (!editing) return;
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    const readers = files.map(
+      (f) =>
+        new Promise<string>((resolve) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result as string);
+          r.readAsDataURL(f);
+        })
+    );
+    Promise.all(readers).then((data) => {
+      editing = { ...editing!, images: [...(editing!.images ?? []), ...data] };
+    });
+  }
+
+  /** Remove an image by index from the current question. */
+  function removeImage(i: number) {
+    if (!editing || !editing.images) return;
+    const imgs = [...editing.images];
+    imgs.splice(i, 1);
+    editing = { ...editing, images: imgs };
   }
 
   /**
@@ -106,7 +118,7 @@
   <h1>Question Bank</h1>
   {#if $questions.length === 0}
     <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
-    <button on:click={newQuestion}>New Question</button>
+    <a href="/add-question">New Question</a>
   {:else}
     <div class="filters">
       <input placeholder="Keyword" bind:value={$keyword} />
@@ -129,14 +141,15 @@
           <th>Question</th>
           <th>Options</th>
           <th>Answer</th>
+          <th>Images</th>
           <th>Subject</th>
           <th>Source</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        {#each $filtered as q}
-          <tr>
+        {#each $filtered as q (q.id)}
+          <tr transition:fade>
             <td>{q.question.slice(0, 30)}</td>
             <td>
               {q.options
@@ -146,6 +159,7 @@
                 : ''}
             </td>
             <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
+            <td>{q.images?.length ?? 0}</td>
             <td>{q.subject}</td>
             <td>{q.source}</td>
             <td>
@@ -156,7 +170,7 @@
         {/each}
       </tbody>
     </table>
-    <button type="button" on:click={newQuestion}>New Question</button>
+    <a href="/add-question">New Question</a>
     <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
   {/if}
 </main>
@@ -177,6 +191,20 @@
       {/each}
     {/if}
     <button type="button" on:click={addOption}>Add Option</button>
+    {#if editing.images?.length}
+      <div class="images thumbs">
+        {#each editing.images as img, i (i)}
+          <div class="img-wrapper" transition:fade>
+            <img src={img} alt="question image {i}" />
+            <button type="button" on:click={() => removeImage(i)}>x</button>
+          </div>
+        {/each}
+      </div>
+    {/if}
+    <label>
+      Add Images
+      <input type="file" accept="image/*" multiple on:change={addImages} />
+    </label>
     <label>
       Answer
       <input bind:value={answerValue} />
@@ -186,6 +214,7 @@
     <button on:click={save}>Save</button>
     <button on:click={() => { dlg?.close(); editing = null; }}>Cancel</button>
   {/if}
+
 </dialog>
 
 

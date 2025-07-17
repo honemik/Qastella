@@ -16,6 +16,7 @@ struct RQuestion {
     question: String,
     options: Option<HashMap<String, String>>,
     answer: Value,
+    images: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -49,6 +50,7 @@ fn sample_questions() -> RQuestionBank {
         question: "Example?".into(),
         options: Some(opts),
         answer: Value::String("A".into()),
+        images: None,
     };
 
     let mut src_map = BTreeMap::new();

@@ -35,6 +35,7 @@
   <a href="/exam-config">Mock Exam</a>
   <a href="/import-questionbank">Import Question Bank</a>
   <a href="/question-bank">Question Bank</a>
+  <a href="/add-question">Add Question</a>
   <a href="/history">History</a>
   <a href="/settings">Settings</a>
 </nav>

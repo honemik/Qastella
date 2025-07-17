@@ -1,8 +1,19 @@
+:root {
+  --primary: #3f51b5;
+  --background: #fafafa;
+  --text: #333;
+}
+
+.dark {
+  --background: #121212;
+  --text: #eee;
+}
+
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background-color: #fafafa;
-  color: #333;
+  background: var(--background);
+  color: var(--text);
 }
 
 main {
@@ -18,12 +29,12 @@ h1 {
 nav.main-nav {
   display: flex;
   gap: 1rem;
-  background-color: #3f51b5;
+  background-color: var(--primary);
   padding: 0.75rem 1rem;
 }
 
 nav.main-nav a {
-  color: white;
+  color: #fff;
   text-decoration: none;
 }
 
@@ -37,10 +48,22 @@ button {
   font-size: 1rem;
   padding: 0.4em 0.6em;
   margin: 0.25em 0;
+  border-radius: 4px;
+}
+input,
+select {
+  border: 1px solid #ccc;
 }
 
 button {
   cursor: pointer;
+  background: var(--primary);
+  border: none;
+  color: #fff;
+}
+
+button:hover {
+  opacity: 0.9;
 }
 
 label {
@@ -75,4 +98,30 @@ td {
 
 .wrong {
   color: red;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.images img {
+  display: block;
+  max-width: 200px;
+  margin-right: 0.5rem;
+}
+.thumbs img {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+.img-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.img-wrapper button {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
