@@ -33,10 +33,11 @@
         const ans = answers[q.id] ?? [];
         let ok = false;
         if (Array.isArray(q.answer)) {
+          const set = new Set(ans);
           ok =
             Array.isArray(ans) &&
-            q.answer.length === ans.length &&
-            q.answer.every((a) => ans.includes(a));
+            q.answer.length === set.size &&
+            q.answer.every((a) => set.has(a));
         } else {
           ok = ans[0] === q.answer;
         }
