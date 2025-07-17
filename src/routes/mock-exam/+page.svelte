@@ -8,6 +8,11 @@
   // Stores selected answers keyed by question id
   let answers: Record<number, string[]> = {};
 
+  /**
+   * Update the user's selected answer for a question. Multiple choice
+   * questions allow selecting several options, while single choice
+   * questions replace the previous selection.
+   */
   function toggleOption(q: Question, opt: string) {
     const current = answers[q.id] ?? [];
     if (q.type === 'multiple') {
@@ -33,10 +38,13 @@
         const ans = answers[q.id] ?? [];
         let ok = false;
         if (Array.isArray(q.answer)) {
+          // Convert the selected answers to a Set to avoid duplicate
+          // values and speed up membership checks.
+          const set = new Set(ans);
           ok =
             Array.isArray(ans) &&
-            q.answer.length === ans.length &&
-            q.answer.every((a) => ans.includes(a));
+            q.answer.length === set.size &&
+            q.answer.every((a) => set.has(a));
         } else {
           ok = ans[0] === q.answer;
         }
