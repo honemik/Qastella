@@ -5,17 +5,23 @@
   import { fade } from 'svelte/transition';
 
   let questionText = '';
-  let answerValue = '';
+  let qType: 'single' | 'multiple' = 'single';
   let options: Record<string, string> = { A: '', B: '' };
+  let correct: string[] = [];
   let images: string[] = [];
   let source = '';
   let subject = '';
   let lightbox: string | null = null;
 
+  $: if (qType === 'single' && correct.length > 1) {
+    correct = [correct[0]];
+  }
+
   function clearForm() {
     questionText = '';
-    answerValue = '';
+    qType = 'single';
     options = { A: '', B: '' };
+    correct = [];
     images = [];
     source = '';
     subject = '';
@@ -32,6 +38,17 @@
   function removeOption(key: string) {
     const { [key]: _removed, ...rest } = options;
     options = rest;
+    correct = correct.filter((c) => c !== key);
+  }
+
+  function toggleCorrect(key: string) {
+    if (qType === 'single') {
+      correct = [key];
+    } else {
+      correct = correct.includes(key)
+        ? correct.filter((c) => c !== key)
+        : [...correct, key];
+    }
   }
 
   function handleFiles(files: FileList | null) {
@@ -71,10 +88,10 @@
     const id = Math.max(0, ...list.map(q => q.id)) + 1;
     const q: Question = {
       id,
-      type: 'single',
+      type: qType,
       question: questionText,
       options,
-      answer: answerValue,
+      answer: qType === 'multiple' ? correct : correct[0],
       images,
       source,
       subject
@@ -92,6 +109,13 @@
   <h1>Add Question</h1>
   <form on:submit|preventDefault={save}>
     <label>
+      Type
+      <select bind:value={qType}>
+        <option value="single">Single Choice</option>
+        <option value="multiple">Multiple Choice</option>
+      </select>
+    </label>
+    <label>
       Question
       <textarea rows="5" bind:value={questionText}></textarea>
     </label>
@@ -100,6 +124,12 @@
       {#each Object.entries(options) as [key, val]}
         <label>
           {key}: <input bind:value={options[key]} />
+          <input
+            type={qType === 'single' ? 'radio' : 'checkbox'}
+            name="correct"
+            checked={correct.includes(key)}
+            on:change={() => toggleCorrect(key)}
+          />
           <button type="button" on:click={() => removeOption(key)}>x</button>
         </label>
       {/each}
@@ -123,10 +153,6 @@
       <input type="file" accept="image/*" multiple on:change={onFileChange} />
     </label>
 
-    <label>
-      Answer
-      <input bind:value={answerValue} />
-    </label>
     <label>Source <input bind:value={source} /></label>
     <label>Subject <input bind:value={subject} /></label>
     <button type="submit">Save</button>

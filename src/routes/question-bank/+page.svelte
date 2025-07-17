@@ -22,16 +22,20 @@
   );
 
   let editing: Question | null = null;
-  let answerValue: string = '';
+  let correct: string[] = [];
   let dlg: HTMLDialogElement | null = null;
   let lightbox: string | null = null;
+
+  $: if (editing && editing.type === 'single' && correct.length > 1) {
+    correct = [correct[0]];
+  }
 
   /**
    * Open the edit dialog for an existing question.
    */
   function openEdit(q: Question) {
     editing = { ...q };
-    answerValue = Array.isArray(q.answer) ? (q.answer as string[]).join(',') : (q.answer as string);
+    correct = Array.isArray(q.answer) ? [...q.answer] : [q.answer as string];
     dlg?.showModal();
   }
 
@@ -58,6 +62,18 @@
     const opts = { ...editing.options };
     delete opts[key];
     editing = { ...editing, options: opts };
+    correct = correct.filter((c) => c !== key);
+  }
+
+  function toggleCorrect(key: string) {
+    if (!editing) return;
+    if (editing.type === 'single') {
+      correct = [key];
+    } else {
+      correct = correct.includes(key)
+        ? correct.filter((c) => c !== key)
+        : [...correct, key];
+    }
   }
 
   /**
@@ -93,7 +109,8 @@
    */
   function save() {
     if (!editing) return;
-    editing.answer = answerValue;
+    editing.answer =
+      editing.type === 'multiple' ? correct : correct[0];
     questions.update((list) => {
       const idx = list.findIndex((q) => q.id === editing!.id);
       if (idx >= 0) {
@@ -178,6 +195,13 @@
   {#if editing}
     <h2>Edit Question {editing.id}</h2>
     <label>
+      Type
+      <select bind:value={editing.type}>
+        <option value="single">Single Choice</option>
+        <option value="multiple">Multiple Choice</option>
+      </select>
+    </label>
+    <label>
       Question
       <input bind:value={editing.question} />
     </label>
@@ -185,6 +209,12 @@
       {#each Object.entries(editing.options) as [key, val]}
         <label>
           {key}: <input bind:value={editing.options![key]} />
+          <input
+            type={editing.type === 'single' ? 'radio' : 'checkbox'}
+            name="correctEdit"
+            checked={correct.includes(key)}
+            on:change={() => toggleCorrect(key)}
+          />
           <button type="button" on:click={() => removeOption(key)}>x</button>
         </label>
       {/each}
@@ -205,10 +235,6 @@
     <label>
       Add Images
       <input type="file" accept="image/*" multiple on:change={addImages} />
-    </label>
-    <label>
-      Answer
-      <input bind:value={answerValue} />
     </label>
     <label>Source <input bind:value={editing.source} /></label>
     <label>Subject <input bind:value={editing.subject} /></label>
