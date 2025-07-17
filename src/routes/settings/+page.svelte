@@ -1,16 +1,21 @@
 <script lang="ts">
-  import { dataDir } from '$lib/stores/settings';
+  import { dataDir, darkMode } from '$lib/stores/settings';
   import { getQuestionBank } from '$lib/stores/questions';
   import { history, saveHistory } from '$lib/stores/results';
 
   let dir = '';
   $: dir = $dataDir;
+  let dark = $darkMode;
 
   /**
    * Persist the input data directory path to the settings store.
    */
   function updateDir() {
     dataDir.set(dir);
+  }
+
+  function updateDark() {
+    darkMode.set(dark);
   }
 
   /**
@@ -48,5 +53,8 @@
   <button on:click={updateDir}>Save Path</button>
   <button on:click={exportQuestions}>Export Question Bank</button>
   <button on:click={exportHistory}>Export History</button>
+  <label>
+    Dark Mode <input type="checkbox" bind:checked={dark} on:change={updateDark} />
+  </label>
 </main>
 

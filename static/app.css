@@ -1,14 +1,39 @@
+:root {
+  --c1: #FAF7F3;
+  --c2: #F0E4D3;
+  --c3: #DCC5B2;
+  --c4: #D9A299;
+  --background: var(--c1);
+  --text: #333;
+  --code-bg: var(--c2);
+  --nav-bg: var(--c3);
+  --nav-text: #000;
+  --primary: var(--c4);
+  --shadow: rgba(217, 162, 153, 0.5);
+}
+
+.dark {
+  --background: #222;
+  --text: #fff;
+  --code-bg: #444;
+  --nav-bg: #111;
+  --nav-text: #fff;
+  --primary: var(--c3);
+  --shadow: rgba(217, 162, 153, 0.5);
+}
+
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background-color: #fafafa;
-  color: #333;
+  background: var(--background);
+  color: var(--text);
 }
 
 main {
   max-width: 800px;
   margin: auto;
   padding: 1rem;
+  overflow-x: auto;
 }
 
 h1 {
@@ -17,30 +42,147 @@ h1 {
 
 nav.main-nav {
   display: flex;
-  gap: 1rem;
-  background-color: #3f51b5;
-  padding: 0.75rem 1rem;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  padding: 0.5rem 1rem;
 }
 
-nav.main-nav a {
-  color: white;
+nav.main-nav .nav-buttons {
+  display: flex;
+  background: var(--primary);
+  align-items: center;
+  justify-content: space-around;
+  border-radius: 10px;
+  padding: 0 0.5rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 0.25rem;
+  min-height: 40px;
+}
+
+
+nav.main-nav .nav-btn {
   text-decoration: none;
+  color: var(--nav-text);
+  font-size: 0.9rem;
+  font-weight: bold;
+  position: relative;
+  margin: 0 0.25rem;
+  padding: 0.5em 1.25em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  border-radius: 50px;
+  background: #fff;
+  box-shadow: 0 0 8px rgb(0 0 0 / 5%);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  transform: scale(1);
 }
 
-nav.main-nav a:hover {
-  text-decoration: underline;
+nav.main-nav .nav-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 7px 29px var(--shadow);
+  transform: scale(1.05);
 }
+
+nav.main-nav .nav-btn::after {
+  content: "";
+  background: var(--primary);
+  position: absolute;
+  z-index: -1;
+  border-radius: inherit;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+nav.main-nav .nav-btn:hover::after {
+  transform: scaleX(1);
+}
+
+nav.main-nav .nav-btn:active {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+nav.main-nav .nav-btn svg {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+nav.main-nav .nav-btn .label {
+  display: inline;
+}
+
+nav.main-nav.compact .nav-btn {
+  padding: 0.5em;
+}
+nav.main-nav .nav-buttons.compact .label {
+  display: none;
+}
+nav.main-nav .nav-buttons.compact {
+  padding: 0.25rem;
+}
+nav.main-nav.compact .brand {
+  font-size: 1rem;
+}
+
+nav.main-nav .brand {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+
 
 input,
 select,
 button {
   font-size: 1rem;
+}
+input,
+select {
   padding: 0.4em 0.6em;
   margin: 0.25em 0;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 button {
+  padding: 0.6em 1.25em;
+  margin: 0.5em;
+  border: none;
+  border-radius: 50px;
+  background: #fff;
+  color: var(--nav-text);
+  box-shadow: 0 0 8px rgb(0 0 0 / 5%);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+button:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 7px 29px var(--shadow);
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: translateY(4px);
+  box-shadow: none;
+  transition: 100ms;
 }
 
 label {
@@ -69,10 +211,232 @@ td {
   margin-bottom: 1em;
 }
 
+.options {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.review-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  background: var(--code-bg);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
+}
+
 .correct {
-  color: green;
+  background: #c8e6c9;
 }
 
 .wrong {
-  color: red;
+  background: #f6caca;
 }
+
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 0.5em 1em;
+  margin: 0.25em 0;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.option-btn.selected {
+  background: #000;
+  color: #fff;
+}
+
+.option-btn.correct {
+  background: #c8e6c9;
+}
+
+.option-btn.wrong {
+  background: #f6caca;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.images button {
+  width: auto;
+  height: auto;
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+  cursor: pointer;
+  color: inherit;
+}
+.images img {
+  display: block;
+  max-width: 200px;
+  margin-right: 0.5rem;
+}
+.thumbs img {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+.img-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.img-wrapper .remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+.img-wrapper .thumb {
+  width: auto;
+  height: auto;
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  cursor: pointer;
+  position: static;
+}
+
+/* option editing checkboxes */
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.option-check {
+  position: relative;
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.option-check input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.option-check .mark {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 0.25em;
+  box-shadow: 2px 2px #888;
+}
+
+.option-check input:checked + .mark {
+  background: #5ee429;
+}
+
+.option-check.checkbox .mark:after,
+.option-check.radio .mark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.option-check.checkbox input:checked + .mark:after {
+  display: block;
+  left: 0.4em;
+  top: 0.2em;
+  width: 0.25em;
+  height: 0.5em;
+  border: solid white;
+  border-width: 0 0.15em 0.15em 0;
+  transform: rotate(45deg);
+}
+
+.option-check.radio .mark {
+  border-radius: 50%;
+}
+
+.option-check.radio input:checked + .mark:after {
+  display: block;
+  top: 0.35em;
+  left: 0.35em;
+  width: 0.6em;
+  height: 0.6em;
+  background: white;
+  border-radius: 50%;
+}
+
+pre {
+  background: var(--code-bg);
+  color: var(--text);
+  padding: 1em;
+  overflow-x: auto;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border: none;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.lightbox:hover,
+.lightbox:active {
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: none;
+  transform: none;
+}
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 10px #000;
+}
+
+.dashboard .stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.dashboard .stats div {
+  flex: 1;
+  text-align: center;
+  background: var(--primary);
+  color: var(--nav-text);
+  padding: 1rem;
+  border-radius: 6px;
+  transition: transform 0.3s;
+}
+.dashboard .quick {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.dashboard .quick a {
+  margin: 0.25em;
+}
+

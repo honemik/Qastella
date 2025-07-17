@@ -8,6 +8,8 @@ export interface Question {
   question: string;
   options?: Record<string, string>;
   answer: string | string[];
+  /** Optional data URLs representing images for this question */
+  images?: string[];
   source?: string;
   subject?: string;
 }
