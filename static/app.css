@@ -1,14 +1,13 @@
 :root {
-  --primary: #3f51b5;
-  --background: #fafafa;
-  --text: #333;
-  --code-bg: #eee;
+  --background: #fff;
+  --text: #000;
+  --code-bg: #f0f0f0;
   --nav-text: #fff;
 }
 
 .dark {
-  --background: #121212;
-  --text: #eee;
+  --background: #000;
+  --text: #fff;
   --code-bg: #333;
 }
 
@@ -33,7 +32,7 @@ nav.main-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--primary);
+  background: #000;
   color: var(--nav-text);
   padding: 0.5rem 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -58,6 +57,40 @@ nav.main-nav .brand {
   font-size: 1.2rem;
 }
 
+.button-container {
+  display: flex;
+  background-color: #000;
+  width: 250px;
+  height: 40px;
+  align-items: center;
+  justify-content: space-around;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.button {
+  outline: 0 !important;
+  border: 0 !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: all ease-in-out 0.3s;
+  cursor: pointer;
+}
+
+.button:hover {
+  transform: translateY(-3px);
+}
+
+.icon {
+  font-size: 20px;
+}
+
 input,
 select,
 button {
@@ -72,14 +105,42 @@ select {
 }
 
 button {
-  cursor: pointer;
-  background: var(--primary);
-  border: none;
+  width: 6.5em;
+  height: 2.3em;
+  margin: 0.5em;
+  background: #000;
   color: #fff;
+  border: none;
+  border-radius: 0.625em;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: transform 0.3s;
 }
 
 button:hover {
-  opacity: 0.9;
+  color: #000;
+  transform: translateY(-2px);
+}
+
+button::after {
+  content: "";
+  background: #fff;
+  position: absolute;
+  z-index: -1;
+  left: -20%;
+  right: -20%;
+  top: 0;
+  bottom: 0;
+  transform: skewX(-45deg) scale(0, 1);
+  transition: all 0.5s;
+}
+
+button:hover::after {
+  transform: skewX(-45deg) scale(1, 1);
 }
 
 label {
@@ -123,10 +184,13 @@ td {
   margin-bottom: 0.5rem;
 }
 .images button {
-  border: none;
-  padding: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
   background: none;
+  border: none;
   cursor: pointer;
+  color: inherit;
 }
 .images img {
   display: block;
@@ -146,12 +210,21 @@ td {
   position: absolute;
   top: 0;
   right: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  background: none;
+  border: none;
 }
 .img-wrapper .thumb {
-  border: none;
+  width: auto;
+  height: auto;
+  margin: 0;
   background: none;
+  border: none;
   padding: 0;
   cursor: pointer;
+  position: static;
 }
 
 pre {
@@ -171,6 +244,8 @@ pre {
   z-index: 1000;
   border: none;
   padding: 0;
+  width: 100%;
+  height: 100%;
 }
 .lightbox img {
   max-width: 90%;
@@ -186,10 +261,11 @@ pre {
 .dashboard .stats div {
   flex: 1;
   text-align: center;
-  background: var(--primary);
+  background: #000;
   color: #fff;
   padding: 1rem;
   border-radius: 6px;
+  transition: transform 0.3s;
 }
 .dashboard .quick {
   margin-top: 1rem;
@@ -198,12 +274,13 @@ pre {
   flex-wrap: wrap;
 }
 .dashboard .quick a {
-  background: var(--primary);
+  background: #000;
   color: #fff;
   padding: 0.75em 1.2em;
   border-radius: 4px;
   text-decoration: none;
+  transition: background 0.3s;
 }
 .dashboard .quick a:hover {
-  opacity: 0.9;
+  background: #444;
 }

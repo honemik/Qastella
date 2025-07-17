@@ -3,21 +3,10 @@ import { invoke } from '@tauri-apps/api/core';
 
 // Directory used for reading and writing data files
 export const dataDir = writable('');
-// Primary navigation/theme colour
-export const themeColor = writable('#3f51b5');
 // Dark mode toggle
 export const darkMode = writable(false);
 
 // Persist store values to localStorage and update document styles
-themeColor.subscribe((v) => {
-  if (typeof document !== 'undefined') {
-    document.documentElement.style.setProperty('--primary', v);
-  }
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('themeColor', v);
-  }
-});
-
 darkMode.subscribe((v) => {
   if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('dark', v);
@@ -42,9 +31,7 @@ export async function initSettings() {
   });
 
   if (typeof localStorage !== 'undefined') {
-    const savedColor = localStorage.getItem('themeColor');
     const dark = localStorage.getItem('darkMode') === '1';
-    if (savedColor) themeColor.set(savedColor);
     darkMode.set(dark);
   }
 }

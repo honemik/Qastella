@@ -9,7 +9,7 @@ Qastella is a desktop application for managing question banks and running mock e
 - Review previous exam attempts and track history
 - Export or import question banks in JSON format
 - Attach any number of images to a question and keep them in the JSON export
-- Customisable theme colour and dark mode toggle
+- Optional dark mode toggle
 
 ## Development
 
@@ -37,4 +37,4 @@ The project uses SvelteKit with adapter-static and Tauri 2. Most of the applicat
 3. **Add Question** – Use the *Add Question* page to quickly paste text and images when creating new questions.
 4. **Start Exam** – Visit *Mock Exam* to configure the number of questions and start a practice session. After submitting you will see your score.
 5. **Review History** – The *History* page lists past attempts. Click an entry to see detailed answers.
-6. **Settings** – Change the data directory, export your questions and history, and adjust theme colour or dark mode.
+6. **Settings** – Change the data directory, export your questions and history, and toggle dark mode.
