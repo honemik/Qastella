@@ -33,21 +33,30 @@
           </div>
         {/if}
         {#if rec.question.options}
-          <ul>
+          <div class="options">
             {#each Object.entries(rec.question.options) as [key, text]}
-              <li
-                class={
-                  rec.question.answer == key
-                    ? 'correct'
-                    : rec.answer == key && !rec.correct
-                    ? 'wrong'
-                    : ''
+              <button
+                type="button"
+                class="option-btn"
+                class:correct={
+                  Array.isArray(rec.question.answer)
+                    ? rec.question.answer.includes(key)
+                    : rec.question.answer === key
                 }
+                class:wrong={
+                  (Array.isArray(rec.answer)
+                    ? rec.answer.includes(key)
+                    : rec.answer === key) &&
+                  !(Array.isArray(rec.question.answer)
+                    ? rec.question.answer.includes(key)
+                    : rec.question.answer === key)
+                }
+                disabled
               >
                 {key}. {text}
-              </li>
+              </button>
             {/each}
-          </ul>
+          </div>
         {:else}
           <p>Correct answer: {rec.question.answer}</p>
           <p>Your answer: {rec.answer}</p>
