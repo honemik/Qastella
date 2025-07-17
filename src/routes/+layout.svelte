@@ -7,16 +7,40 @@ import { loadHistory, saveHistory } from '$lib/stores/results';
 let navButtons: HTMLDivElement;
 let navBar: HTMLElement;
 let baseHeight = 0;
+let maxWidth = 0;
+let isCompact = false;
+
+function setCompact(newState: boolean) {
+  if (isCompact === newState) return;
+  isCompact = newState;
+  navButtons.classList.toggle('compact', isCompact);
+  navBar.classList.toggle('compact', isCompact);
+  if (!isCompact) {
+    baseHeight = navButtons.clientHeight;
+    maxWidth = Math.max(maxWidth, navBar.clientWidth);
+  }
+}
 
 function adjustNav() {
   if (!navButtons || !navBar) return;
   const width = navBar.clientWidth;
-  if (!baseHeight) baseHeight = navButtons.clientHeight;
-  const multiLine = navButtons.scrollHeight > baseHeight + 1;
-  const compact =
-    multiLine || (width <= 1000 && width <= window.innerWidth * 0.5);
-  navButtons.classList.toggle('compact', compact);
-  navBar.classList.toggle('compact', compact);
+  if (!baseHeight) {
+    baseHeight = navButtons.clientHeight;
+    maxWidth = width;
+  }
+
+  if (!isCompact) {
+    maxWidth = Math.max(maxWidth, width);
+    const wrapped = navButtons.scrollHeight > baseHeight + 1;
+    if (wrapped || width < maxWidth * 0.5) {
+      setCompact(true);
+    }
+  } else {
+    // add a little hysteresis so it doesn't flicker when resizing around the threshold
+    if (width > maxWidth * 0.55 && navButtons.scrollHeight <= baseHeight + 1) {
+      setCompact(false);
+    }
+  }
 }
 
   // Initial load of persistent data and save handlers
