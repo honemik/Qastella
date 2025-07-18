@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { questions, type Question } from '$lib/stores/questions';
+  import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
   import { fade } from 'svelte/transition';
@@ -83,7 +83,7 @@
     images = images.filter((_, idx) => idx !== i);
   }
 
-  function save(ev?: Event, redirect = true) {
+  async function save(ev?: Event, redirect = true) {
     const list = get(questions);
     const id = Math.max(0, ...list.map(q => q.id)) + 1;
     const q: Question = {
@@ -97,6 +97,7 @@
       subject
     };
     questions.set([...list, q]);
+    await saveQuestionBank();
     if (redirect) {
       goto('/question-bank');
     } else {

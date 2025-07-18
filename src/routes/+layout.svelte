@@ -3,6 +3,7 @@
   import { initSettings } from '$lib/stores/settings';
 import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
 import { loadHistory, saveHistory } from '$lib/stores/results';
+import { dataDir } from '$lib/stores/settings';
 
 let navButtons: HTMLDivElement;
 let navBar: HTMLElement;
@@ -35,10 +36,18 @@ function adjustNav() {
 
   // Initial load of persistent data and save handlers
   onMount(() => {
+    let initialised = false;
     (async () => {
       await initSettings();
       await Promise.all([loadQuestionBank(), loadHistory()]);
+      initialised = true;
     })();
+
+    const unsubDir = dataDir.subscribe(async () => {
+      if (initialised) {
+        await Promise.all([loadQuestionBank(), loadHistory()]);
+      }
+    });
 
     // Helper to persist questions and history together
     const saveAll = async () => {
@@ -58,6 +67,7 @@ function adjustNav() {
     return () => {
       window.removeEventListener('beforeunload', unloadHandler);
       window.removeEventListener('resize', adjustNav);
+      unsubDir();
     };
   });
 </script>

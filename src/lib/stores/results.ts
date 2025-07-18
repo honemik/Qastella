@@ -45,21 +45,24 @@ export async function saveHistory() {
 /**
  * Append a result to the history store and persist the change.
  */
-export function addResultToHistory(res: ExamResult) {
-  history.update((list) => [...list, { ...res, timestamp: new Date().toISOString() }]);
-  saveHistory();
+export async function addResultToHistory(res: ExamResult) {
+  history.update((list) => [
+    ...list,
+    { ...res, timestamp: new Date().toISOString() }
+  ]);
+  await saveHistory();
 }
 
 /**
  * Remove a history entry by index and persist the change.
  */
-export function deleteHistoryItem(index: number) {
+export async function deleteHistoryItem(index: number) {
   history.update((list) => {
     const copy = [...list];
     copy.splice(index, 1);
     return copy;
   });
-  saveHistory();
+  await saveHistory();
 }
 
 

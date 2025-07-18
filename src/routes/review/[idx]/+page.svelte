@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { derived } from 'svelte/store';
-  import { history } from '$lib/stores/results';
+  import { history, type AnswerRecord } from '$lib/stores/results';
   import { fade } from 'svelte/transition';
 
   let lightbox: string | null = null;
@@ -10,6 +10,17 @@
   const idx = derived(page, ($p) => parseInt($p.params.idx));
   // The history entry selected for review
   const entry = derived([history, idx], ([$history, id]) => $history[id]);
+
+  function copy(rec: AnswerRecord) {
+    const html = `<p>${rec.question.question}</p>` +
+      (rec.question.images ? rec.question.images.map((src) => `<img src="${src}">`).join('') : '');
+    const text = rec.question.question;
+    const item = new ClipboardItem({
+      'text/plain': new Blob([text], { type: 'text/plain' }),
+      'text/html': new Blob([html], { type: 'text/html' })
+    });
+    navigator.clipboard.write([item]);
+  }
 </script>
 
 <main>
@@ -18,6 +29,9 @@
     {#each $entry.records as rec, i (rec.question.id)}
       <article class="review-card" transition:fade>
         <h2>Question {i + 1}</h2>
+        <button type="button" class="copy-btn" on:click={() => copy(rec)}>
+          Copy
+        </button>
         <p>{rec.question.question}</p>
         {#if rec.question.images}
           <div class="images">

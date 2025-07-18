@@ -31,7 +31,7 @@
   /**
    * Grade the answers and store the result before moving to the result page.
    */
-  function submit() {
+  async function submit() {
       const records: AnswerRecord[] = [];
       let correct = 0;
       $examQuestions.forEach((q) => {
@@ -52,7 +52,7 @@
         records.push({ question: q, answer: Array.isArray(q.answer) ? ans : ans[0], correct: ok });
       });
       lastResult.set({ records, elapsed: 0 });
-      addResultToHistory({ records, elapsed: 0 });
+      await addResultToHistory({ records, elapsed: 0 });
       attemptCount.update((n) => n + $examQuestions.length);
       correctTotal.update((n) => n + correct);
       goto('/exam-result');
