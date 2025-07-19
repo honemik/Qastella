@@ -50,13 +50,18 @@ export async function saveHistory() {
 /**
  * Append a result to the history store and persist the change.
  */
-export async function addResultToHistory(res: ExamResult) {
-  history.update((list) => [
-    ...list,
-    { ...res, timestamp: new Date().toISOString() }
-  ]);
+export async function addResultToHistory(res: ExamResult): Promise<number> {
+  let index = 0;
+  history.update((list) => {
+    index = list.length;
+    return [
+      ...list,
+      { ...res, timestamp: new Date().toISOString() }
+    ];
+  });
   console.debug('Added result to history. Saving...');
   await saveHistory();
+  return index;
 }
 
 /**

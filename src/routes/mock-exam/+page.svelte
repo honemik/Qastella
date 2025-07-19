@@ -52,10 +52,10 @@
         records.push({ question: q, answer: Array.isArray(q.answer) ? ans : ans[0], correct: ok });
       });
       lastResult.set({ records, elapsed: 0 });
-      await addResultToHistory({ records, elapsed: 0 });
+      const index = await addResultToHistory({ records, elapsed: 0 });
       attemptCount.update((n) => n + $examQuestions.length);
       correctTotal.update((n) => n + correct);
-      goto('/review');
+      goto(`/review/${index}`);
     }
 </script>
 

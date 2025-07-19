@@ -3,7 +3,8 @@
     questions,
     type Question,
     type QuestionBank,
-    flattenBank
+    flattenBank,
+    saveQuestionBank
   } from '$lib/stores/questions';
   import { invoke } from '@tauri-apps/api/core';
 
@@ -29,6 +30,7 @@
           }));
           return [...existing, ...added];
         });
+        saveQuestionBank();
       } catch (e) {
         console.error('Failed to parse', e);
       }
@@ -42,6 +44,7 @@
   async function loadSample() {
     const data = (await invoke('sample_questions')) as QuestionBank;
     questions.set(flattenBank(data));
+    saveQuestionBank();
   }
 </script>
 
