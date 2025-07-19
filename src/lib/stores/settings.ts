@@ -22,12 +22,15 @@ darkMode.subscribe((v) => {
  */
 export async function initSettings() {
   const dir = (await invoke('default_data_dir')) as string;
+  console.debug('Default data dir', dir);
   const savedDir = typeof localStorage !== 'undefined' ? localStorage.getItem('dataDir') : null;
   dataDir.set(savedDir || dir);
+  console.debug('Using data dir', savedDir || dir);
   dataDir.subscribe((v) => {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('dataDir', v);
     }
+    console.debug('Data dir changed to', v);
   });
 
   if (typeof localStorage !== 'undefined') {

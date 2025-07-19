@@ -64,12 +64,12 @@ fn sample_questions() -> RQuestionBank {
 /// Determine the default directory used to store application data.
 #[tauri::command]
 fn default_data_dir(app_handle: tauri::AppHandle) -> Result<String, String> {
-    Ok(app_handle
+    let path = app_handle
         .path()
         .app_data_dir()
-        .map_err(|e| e.to_string())?
-        .to_string_lossy()
-        .to_string())
+        .map_err(|e| e.to_string())?;
+    println!("Default data dir is {}", path.display());
+    Ok(path.to_string_lossy().to_string())
 }
 
 /// Helper to resolve a file path relative to either a custom directory or the application data dir.
@@ -80,10 +80,15 @@ fn resolve_path(
 ) -> Result<PathBuf, String> {
     if let Some(d) = dir {
         let mut p = PathBuf::from(d);
-        // Treat the provided value as a directory path. Even if it does not yet
-        // exist, join the desired file name so we read/write to
-        // `<dir>/<file>` rather than the directory itself.
-        if p.is_dir() || p.extension().is_none() {
+        // Treat the provided value as a directory path when it either exists as
+        // one or appears to be a directory path (e.g. does not end with
+        // `.json`). This avoids mistakenly treating paths such as
+        // `com.qastella.honemik` on Windows as files.
+        let looks_like_file = p
+            .extension()
+            .map(|ext| ext == "json")
+            .unwrap_or(false);
+        if p.is_dir() || !looks_like_file {
             p.push(file);
         }
         Ok(p)
@@ -103,7 +108,8 @@ fn load_questions(
     dir: Option<String>,
 ) -> Result<RQuestionBank, String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
-    match fs::read_to_string(path) {
+    println!("Loading question bank from {}", path.display());
+    match fs::read_to_string(&path) {
         Ok(content) => serde_json::from_str(&content).map_err(|e| e.to_string()),
         Err(_) => Ok(RQuestionBank { subjects: BTreeMap::new() }),
     }
@@ -117,7 +123,11 @@ fn save_questions(
     bank: RQuestionBank,
 ) -> Result<(), String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
+    println!("Saving question bank to {}", path.display());
     if let Some(parent) = path.parent() {
+        if parent.exists() && parent.is_file() {
+            fs::remove_file(parent).map_err(|e| e.to_string())?;
+        }
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
     let data = serde_json::to_vec_pretty(&bank).map_err(|e| e.to_string())?;
@@ -132,7 +142,8 @@ fn load_history(
     dir: Option<String>,
 ) -> Result<Vec<RExamResult>, String> {
     let path = resolve_path(&app_handle, dir, "history.json")?;
-    match fs::read_to_string(path) {
+    println!("Loading history from {}", path.display());
+    match fs::read_to_string(&path) {
         Ok(content) => serde_json::from_str(&content).map_err(|e| e.to_string()),
         Err(_) => Ok(Vec::new()),
     }
@@ -146,7 +157,11 @@ fn save_history(
     history: Vec<RExamResult>,
 ) -> Result<(), String> {
     let path = resolve_path(&app_handle, dir, "history.json")?;
+    println!("Saving history to {}", path.display());
     if let Some(parent) = path.parent() {
+        if parent.exists() && parent.is_file() {
+            fs::remove_file(parent).map_err(|e| e.to_string())?;
+        }
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
     let data = serde_json::to_vec_pretty(&history).map_err(|e| e.to_string())?;

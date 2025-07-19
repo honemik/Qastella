@@ -4,6 +4,7 @@
     import { lastResult, attemptCount, correctTotal, type AnswerRecord, addResultToHistory } from '$lib/stores/results';
     import type { Question } from '$lib/stores/questions';
     import { fade } from 'svelte/transition';
+    import { addToast } from '$lib/stores/toast';
 
   // Stores selected answers keyed by question id
   let answers: Record<number, string[]> = {};
@@ -31,7 +32,14 @@
   /**
    * Grade the answers and store the result before moving to the result page.
    */
-  function submit() {
+  async function submit() {
+      for (const q of $examQuestions) {
+        const ans = answers[q.id];
+        if (!ans || ans.length === 0) {
+          addToast('Please answer all questions before submitting.');
+          return;
+        }
+      }
       const records: AnswerRecord[] = [];
       let correct = 0;
       $examQuestions.forEach((q) => {
@@ -52,10 +60,10 @@
         records.push({ question: q, answer: Array.isArray(q.answer) ? ans : ans[0], correct: ok });
       });
       lastResult.set({ records, elapsed: 0 });
-      addResultToHistory({ records, elapsed: 0 });
+      const index = await addResultToHistory({ records, elapsed: 0 });
       attemptCount.update((n) => n + $examQuestions.length);
       correctTotal.update((n) => n + correct);
-      goto('/exam-result');
+      goto(`/review/${index}`);
     }
 </script>
 

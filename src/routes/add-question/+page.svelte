@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { questions, type Question } from '$lib/stores/questions';
+  import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
   import { fade } from 'svelte/transition';
+  import { addToast } from '$lib/stores/toast';
 
   let questionText = '';
   let qType: 'single' | 'multiple' = 'single';
@@ -83,7 +84,11 @@
     images = images.filter((_, idx) => idx !== i);
   }
 
-  function save(ev?: Event, redirect = true) {
+  async function save(ev?: Event, redirect = true) {
+    if (correct.length === 0) {
+      addToast('Please select the correct answer before saving');
+      return;
+    }
     const list = get(questions);
     const id = Math.max(0, ...list.map(q => q.id)) + 1;
     const q: Question = {
@@ -97,6 +102,7 @@
       subject
     };
     questions.set([...list, q]);
+    await saveQuestionBank();
     if (redirect) {
       goto('/question-bank');
     } else {

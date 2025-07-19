@@ -28,38 +28,52 @@ export const history = writable<TimedExamResult[]>([]);
  * Read the exam history from disk using the configured data directory.
  */
 export async function loadHistory() {
-  const dir = get(dataDir);
+  const dir = get(dataDir) || null;
+  console.debug('Loading history from', dir ?? '(default)');
   const data = await invoke('load_history', { dir });
-  history.set((data as TimedExamResult[]) ?? []);
+  const list = (data as TimedExamResult[]) ?? [];
+  console.debug('Loaded', list.length, 'history entries');
+  history.set(list);
 }
 
 /**
  * Save the current history list to disk.
  */
 export async function saveHistory() {
-  const dir = get(dataDir);
+  const dir = get(dataDir) || null;
   const list = get(history);
+  console.debug('Saving history to', dir ?? '(default)');
   await invoke('save_history', { dir, history: list });
+  console.debug('History saved:', list.length, 'entries');
 }
 
 /**
  * Append a result to the history store and persist the change.
  */
-export function addResultToHistory(res: ExamResult) {
-  history.update((list) => [...list, { ...res, timestamp: new Date().toISOString() }]);
-  saveHistory();
+export async function addResultToHistory(res: ExamResult): Promise<number> {
+  let index = 0;
+  history.update((list) => {
+    index = list.length;
+    return [
+      ...list,
+      { ...res, timestamp: new Date().toISOString() }
+    ];
+  });
+  console.debug('Added result to history. Saving...');
+  await saveHistory();
+  return index;
 }
 
 /**
  * Remove a history entry by index and persist the change.
  */
-export function deleteHistoryItem(index: number) {
+export async function deleteHistoryItem(index: number) {
   history.update((list) => {
     const copy = [...list];
     copy.splice(index, 1);
     return copy;
   });
-  saveHistory();
+  await saveHistory();
 }
 
 

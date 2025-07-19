@@ -1,8 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { initSettings } from '$lib/stores/settings';
+import { initSettings } from '$lib/stores/settings';
 import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
 import { loadHistory, saveHistory } from '$lib/stores/results';
+import { dataDir } from '$lib/stores/settings';
+import { toasts } from '$lib/stores/toast';
+import { fade } from 'svelte/transition';
 
 let navButtons: HTMLDivElement;
 let navBar: HTMLElement;
@@ -35,10 +38,18 @@ function adjustNav() {
 
   // Initial load of persistent data and save handlers
   onMount(() => {
+    let initialised = false;
     (async () => {
       await initSettings();
       await Promise.all([loadQuestionBank(), loadHistory()]);
+      initialised = true;
     })();
+
+    const unsubDir = dataDir.subscribe(async () => {
+      if (initialised) {
+        await Promise.all([loadQuestionBank(), loadHistory()]);
+      }
+    });
 
     // Helper to persist questions and history together
     const saveAll = async () => {
@@ -58,6 +69,7 @@ function adjustNav() {
     return () => {
       window.removeEventListener('beforeunload', unloadHandler);
       window.removeEventListener('resize', adjustNav);
+      unsubDir();
     };
   });
 </script>
@@ -107,5 +119,31 @@ function adjustNav() {
 
 
 <slot />
+
+<div class="toast-container">
+  {#each $toasts as t (t.id)}
+    <div class="toast" transition:fade>{t.message}</div>
+  {/each}
+</div>
+
+<style>
+  .toast-container {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 1000;
+  }
+  .toast {
+    background: var(--primary);
+    color: var(--nav-text);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+</style>
 
 
