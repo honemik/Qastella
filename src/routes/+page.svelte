@@ -1,11 +1,30 @@
 <script lang="ts">
   import { derived } from 'svelte/store';
   import { questions } from '$lib/stores/questions';
-  import { attemptCount, correctTotal } from '$lib/stores/results';
+  import { history } from '$lib/stores/results';
   import { goto } from '$app/navigation';
 
+  const attemptCount = derived(history, ($h) =>
+    $h.reduce((sum, r) => sum + r.records.length, 0)
+  );
+  const correctTotal = derived(history, ($h) =>
+    $h.reduce(
+      (sum, r) => sum + r.records.filter((rec) => rec.correct).length,
+      0
+    )
+  );
   const accuracy = derived([correctTotal, attemptCount], ([$c, $a]) =>
     $a === 0 ? 0 : Math.round(($c / $a) * 100)
+  );
+  const recentScores = derived(history, ($h) =>
+    $h
+      .slice(-10)
+      .map((res) =>
+        Math.round(
+          (res.records.filter((r) => r.correct).length / res.records.length) *
+            100
+        )
+      )
   );
 </script>
 
@@ -26,6 +45,16 @@
       <span>Attempts</span>
       <progress value={$attemptCount} max="{$questions.length}"></progress>
     </div>
+    {#if $recentScores.length > 0}
+      <div class="graph-row">
+        <span>Recent Scores</span>
+        <div class="trend">
+          {#each $recentScores as s}
+            <div class="trend-bar" style="height: {s}%" title={`${s}%`}></div>
+          {/each}
+        </div>
+      </div>
+    {/if}
   </section>
   <nav class="quick">
     <button class="nav-btn" type="button" on:click={() => goto('/exam-config')}>Start Mock Exam</button>
