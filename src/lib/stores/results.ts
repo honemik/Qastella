@@ -39,6 +39,7 @@ export async function loadHistory() {
 export async function saveHistory() {
   const dir = get(dataDir) || null;
   const list = get(history);
+  console.debug('Saving history to', dir ?? '(default)');
   await invoke('save_history', { dir, history: list });
 }
 
@@ -50,6 +51,7 @@ export async function addResultToHistory(res: ExamResult) {
     ...list,
     { ...res, timestamp: new Date().toISOString() }
   ]);
+  console.debug('Added result to history. Saving...');
   await saveHistory();
 }
 

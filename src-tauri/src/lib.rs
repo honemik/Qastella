@@ -122,6 +122,7 @@ fn save_questions(
     bank: RQuestionBank,
 ) -> Result<(), String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
+    println!("Saving question bank to {}", path.display());
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
@@ -151,6 +152,7 @@ fn save_history(
     history: Vec<RExamResult>,
 ) -> Result<(), String> {
     let path = resolve_path(&app_handle, dir, "history.json")?;
+    println!("Saving history to {}", path.display());
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
