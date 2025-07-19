@@ -124,6 +124,9 @@ fn save_questions(
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
     println!("Saving question bank to {}", path.display());
     if let Some(parent) = path.parent() {
+        if parent.exists() && parent.is_file() {
+            fs::remove_file(parent).map_err(|e| e.to_string())?;
+        }
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
     let data = serde_json::to_vec_pretty(&bank).map_err(|e| e.to_string())?;
@@ -154,6 +157,9 @@ fn save_history(
     let path = resolve_path(&app_handle, dir, "history.json")?;
     println!("Saving history to {}", path.display());
     if let Some(parent) = path.parent() {
+        if parent.exists() && parent.is_file() {
+            fs::remove_file(parent).map_err(|e| e.to_string())?;
+        }
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
     let data = serde_json::to_vec_pretty(&history).map_err(|e| e.to_string())?;
