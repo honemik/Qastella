@@ -268,17 +268,17 @@
     <label>Subject <input bind:value={editing.subject} /></label>
     <button on:click={save}>Save</button>
     <button on:click={() => { dlg?.close(); editing = null; }}>Cancel</button>
+    {#if lightbox}
+      <button
+        type="button"
+        class="lightbox"
+        on:click={() => (lightbox = null)}
+      >
+        <img src={lightbox} alt="enlarged" />
+      </button>
+    {/if}
   {/if}
 
 </dialog>
-{#if lightbox}
-  <button
-    type="button"
-    class="lightbox"
-    on:click={() => (lightbox = null)}
-  >
-    <img src={lightbox} alt="enlarged" />
-  </button>
-{/if}
 
 
