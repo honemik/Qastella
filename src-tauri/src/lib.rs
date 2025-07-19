@@ -80,10 +80,15 @@ fn resolve_path(
 ) -> Result<PathBuf, String> {
     if let Some(d) = dir {
         let mut p = PathBuf::from(d);
-        // Treat the provided value as a directory path. Even if it does not yet
-        // exist, join the desired file name so we read/write to
-        // `<dir>/<file>` rather than the directory itself.
-        if p.is_dir() || p.extension().is_none() {
+        // Treat the provided value as a directory path when it either exists as
+        // one or appears to be a directory path (e.g. does not end with
+        // `.json`). This avoids mistakenly treating paths such as
+        // `com.qastella.honemik` on Windows as files.
+        let looks_like_file = p
+            .extension()
+            .map(|ext| ext == "json")
+            .unwrap_or(false);
+        if p.is_dir() || !looks_like_file {
             p.push(file);
         }
         Ok(p)
