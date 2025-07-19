@@ -224,6 +224,12 @@ td {
   background: var(--code-bg);
   box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
 }
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
 
 .correct {
   background: #c8e6c9;
@@ -398,7 +404,7 @@ pre {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
   border: none;
   padding: 0;
   width: 100%;
@@ -438,5 +444,17 @@ pre {
 }
 .dashboard .quick a {
   margin: 0.25em;
+}
+
+.dashboard .graphs {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.dashboard .graph-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 

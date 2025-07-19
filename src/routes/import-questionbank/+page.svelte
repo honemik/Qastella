@@ -20,6 +20,9 @@
     reader.onload = () => {
       try {
         const raw = JSON.parse(reader.result as string) as QuestionBank;
+        if (!raw || typeof raw !== 'object' || !raw.subjects) {
+          throw new Error('Invalid question bank format');
+        }
         questions.update((existing) => {
           let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
           const flat = flattenBank(raw);
@@ -32,7 +35,7 @@
         });
         saveQuestionBank();
       } catch (e) {
-        console.error('Failed to parse', e);
+        console.error('Failed to import', e);
       }
     };
     reader.readAsText(file);
@@ -43,7 +46,10 @@
    */
   async function loadSample() {
     const data = (await invoke('sample_questions')) as QuestionBank;
-    questions.set(flattenBank(data));
+    questions.update((existing) => [
+      ...existing,
+      ...flattenBank(data)
+    ]);
     saveQuestionBank();
   }
 </script>

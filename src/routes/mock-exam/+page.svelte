@@ -75,8 +75,11 @@
     </p>
   {:else}
     <form on:submit|preventDefault={submit}>
-      {#each $examQuestions as q (q.id)}
+      {#each $examQuestions as q, i (q.id)}
         <div class="question review-card" transition:fade>
+          <div class="title-row">
+            <h2>Question {i + 1} / {$examQuestions.length}</h2>
+          </div>
           <p>{q.question}</p>
           {#if q.images}
             <div class="images">

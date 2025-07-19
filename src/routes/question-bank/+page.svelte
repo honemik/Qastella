@@ -96,6 +96,30 @@
     });
   }
 
+  /**
+   * Paste handler to allow images to be pasted directly into the edit dialog.
+   */
+  function handlePaste(e: ClipboardEvent) {
+    if (!editing) return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const it of items) {
+      if (it.type.startsWith('image/')) {
+        const f = it.getAsFile();
+        if (f) {
+          const r = new FileReader();
+          r.onload = () => {
+            editing = {
+              ...editing!,
+              images: [...(editing!.images ?? []), r.result as string]
+            };
+          };
+          r.readAsDataURL(f);
+        }
+      }
+    }
+  }
+
   /** Remove an image by index from the current question. */
   function removeImage(i: number) {
     if (!editing || !editing.images) return;
@@ -120,6 +144,7 @@
       }
       return [...list, editing!];
     });
+    console.debug('Saved question', editing.id);
     dlg?.close();
     editing = null;
   }
@@ -191,7 +216,7 @@
   {/if}
 </main>
 
-<dialog bind:this={dlg}>
+<dialog bind:this={dlg} on:paste={handlePaste}>
   {#if editing}
     <h2>Edit Question {editing.id}</h2>
     <label>

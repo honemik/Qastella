@@ -75,8 +75,8 @@ A question bank is stored as JSON where questions are grouped by subject and sou
         {
           "id": 1,
           "type": "single",
-          "question": "...",
-          "options": { "A": "...", "B": "..." },
+          "question": "Is the Earth round?",
+          "options": { "A": "Yes", "B": "No" },
           "answer": "A",
           "images": ["data:image/png;base64,..."]
         }
