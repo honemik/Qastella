@@ -63,9 +63,9 @@
     subject and then by source year.
   </p>
   <pre>{@html `{"subjects":{
-  "生理學":{
-    "110年醫學四":[
-      {"id":1,"type":"single","question":"...","options":{"A":"..."},"answer":"A"}
+  "General":{
+    "Sample":[
+      {"id":1,"type":"single","question":"1+1=?","options":{"A":"1","B":"2"},"answer":"B"}
     ]
   }
 }}`}</pre>
