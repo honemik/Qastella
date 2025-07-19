@@ -10,6 +10,7 @@
   --nav-text: #000;
   --primary: var(--c4);
   --shadow: rgba(217, 162, 153, 0.5);
+  --button-bg: #fff;
 }
 
 .dark {
@@ -20,6 +21,7 @@
   --nav-text: #fff;
   --primary: var(--c3);
   --shadow: rgba(217, 162, 153, 0.5);
+  --button-bg: #333;
 }
 
 body {
@@ -76,7 +78,7 @@ nav.main-nav .nav-btn {
   justify-content: center;
   gap: 0.25em;
   border-radius: 50px;
-  background: #fff;
+  background: var(--button-bg);
   box-shadow: 0 0 8px rgb(0 0 0 / 5%);
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -162,7 +164,7 @@ button {
   margin: 0.5em;
   border: none;
   border-radius: 50px;
-  background: #fff;
+  background: var(--button-bg);
   color: var(--nav-text);
   box-shadow: 0 0 8px rgb(0 0 0 / 5%);
   text-transform: uppercase;
@@ -224,6 +226,16 @@ td {
   background: var(--code-bg);
   box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
 }
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.copy-btn {
+  margin: 0;
+  padding: 0.25em 0.75em;
+}
 
 .correct {
   background: #c8e6c9;
@@ -239,7 +251,7 @@ td {
   padding: 0.5em 1em;
   margin: 0.25em 0;
   border: 1px solid #ccc;
-  background: #fff;
+  background: var(--button-bg);
   border-radius: 6px;
   text-align: left;
   cursor: pointer;
@@ -398,7 +410,7 @@ pre {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 200000;
   border: none;
   padding: 0;
   width: 100%;
@@ -438,5 +450,21 @@ pre {
 }
 .dashboard .quick a {
   margin: 0.25em;
+}
+
+.dashboard .graphs {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.dashboard .graph-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.dashboard .graphs canvas {
+  width: 100%;
+  max-height: 200px;
 }
 

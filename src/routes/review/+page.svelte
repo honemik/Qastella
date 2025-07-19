@@ -21,10 +21,12 @@
   {#if $lastResult}
 {#each $lastResult.records as rec, i (rec.question.id)}
       <article class="review-card" transition:fade>
-        <h2>Question {i + 1}</h2>
-        <button type="button" class="copy-btn" on:click={() => copy(rec)}>
-          Copy
-        </button>
+        <div class="title-row">
+          <h2>Question {i + 1}</h2>
+          <button type="button" class="copy-btn" on:click={() => copy(rec)}>
+            Copy
+          </button>
+        </div>
         <p>{rec.question.question}</p>
         {#if rec.question.images}
           <div class="images">
