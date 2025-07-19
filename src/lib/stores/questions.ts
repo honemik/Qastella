@@ -91,3 +91,11 @@ export function getQuestionBank() {
   return toBank(get(questions));
 }
 
+/**
+ * Reset the question list to an empty state and persist the change.
+ */
+export async function resetQuestionBank() {
+  questions.set([]);
+  await saveQuestionBank();
+}
+

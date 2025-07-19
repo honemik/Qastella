@@ -62,6 +62,7 @@ The project uses SvelteKit with `adapter-static` and Tauri 2. Most of the applic
 - Change the data directory where question banks and history are saved.
 - Export all questions and history as a backup.
 - Toggle dark mode.
+- Reset the question bank to an empty state.
 
 ## Question Bank Format
 
@@ -75,9 +76,9 @@ A question bank is stored as JSON where questions are grouped by subject and sou
         {
           "id": 1,
           "type": "single",
-          "question": "...",
-          "options": { "A": "...", "B": "..." },
-          "answer": "A",
+          "question": "1+1=?",
+          "options": { "A": "1", "B": "2" },
+          "answer": "B",
           "images": ["data:image/png;base64,..."]
         }
       ]

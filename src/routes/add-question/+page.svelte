@@ -103,6 +103,7 @@
     };
     questions.set([...list, q]);
     await saveQuestionBank();
+    console.debug('Added question', id);
     if (redirect) {
       goto('/question-bank');
     } else {

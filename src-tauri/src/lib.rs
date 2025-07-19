@@ -42,14 +42,14 @@ struct RExamResult {
 #[tauri::command]
 fn sample_questions() -> RQuestionBank {
     let mut opts = HashMap::new();
-    opts.insert("A".into(), "Yes".into());
-    opts.insert("B".into(), "No".into());
+    opts.insert("A".into(), "1".into());
+    opts.insert("B".into(), "2".into());
 
     let question = RQuestion {
         id: 1,
-        question: "Example?".into(),
+        question: "1+1=?".into(),
         options: Some(opts),
-        answer: Value::String("A".into()),
+        answer: Value::String("B".into()),
         images: None,
     };
 
