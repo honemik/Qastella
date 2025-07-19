@@ -29,8 +29,11 @@ export const history = writable<TimedExamResult[]>([]);
  */
 export async function loadHistory() {
   const dir = get(dataDir) || null;
+  console.debug('Loading history from', dir ?? '(default)');
   const data = await invoke('load_history', { dir });
-  history.set((data as TimedExamResult[]) ?? []);
+  const list = (data as TimedExamResult[]) ?? [];
+  console.debug('Loaded', list.length, 'history entries');
+  history.set(list);
 }
 
 /**
@@ -41,6 +44,7 @@ export async function saveHistory() {
   const list = get(history);
   console.debug('Saving history to', dir ?? '(default)');
   await invoke('save_history', { dir, history: list });
+  console.debug('History saved:', list.length, 'entries');
 }
 
 /**

@@ -64,12 +64,12 @@ fn sample_questions() -> RQuestionBank {
 /// Determine the default directory used to store application data.
 #[tauri::command]
 fn default_data_dir(app_handle: tauri::AppHandle) -> Result<String, String> {
-    Ok(app_handle
+    let path = app_handle
         .path()
         .app_data_dir()
-        .map_err(|e| e.to_string())?
-        .to_string_lossy()
-        .to_string())
+        .map_err(|e| e.to_string())?;
+    println!("Default data dir is {}", path.display());
+    Ok(path.to_string_lossy().to_string())
 }
 
 /// Helper to resolve a file path relative to either a custom directory or the application data dir.
@@ -108,7 +108,8 @@ fn load_questions(
     dir: Option<String>,
 ) -> Result<RQuestionBank, String> {
     let path = resolve_path(&app_handle, dir, "question_bank.json")?;
-    match fs::read_to_string(path) {
+    println!("Loading question bank from {}", path.display());
+    match fs::read_to_string(&path) {
         Ok(content) => serde_json::from_str(&content).map_err(|e| e.to_string()),
         Err(_) => Ok(RQuestionBank { subjects: BTreeMap::new() }),
     }
@@ -141,7 +142,8 @@ fn load_history(
     dir: Option<String>,
 ) -> Result<Vec<RExamResult>, String> {
     let path = resolve_path(&app_handle, dir, "history.json")?;
-    match fs::read_to_string(path) {
+    println!("Loading history from {}", path.display());
+    match fs::read_to_string(&path) {
         Ok(content) => serde_json::from_str(&content).map_err(|e| e.to_string()),
         Err(_) => Ok(Vec::new()),
     }
