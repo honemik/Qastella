@@ -1,6 +1,6 @@
 <script lang="ts">
   import { dataDir, darkMode } from '$lib/stores/settings';
-  import { getQuestionBank } from '$lib/stores/questions';
+  import { getQuestionBank, resetQuestionBank } from '$lib/stores/questions';
   import { history } from '$lib/stores/results';
 
   /**
@@ -28,6 +28,15 @@
     a.click();
     URL.revokeObjectURL(a.href);
   }
+
+  /**
+   * Clear all questions from the local bank.
+   */
+  async function resetBank() {
+    if (confirm('This will delete all questions. Continue?')) {
+      await resetQuestionBank();
+    }
+  }
 </script>
 
 <main>
@@ -37,6 +46,7 @@
   </label>
   <button on:click={exportQuestions}>Export Question Bank</button>
   <button on:click={exportHistory}>Export History</button>
+  <button on:click={resetBank}>Reset Question Bank</button>
   <label>
     Dark Mode <input type="checkbox" bind:checked={$darkMode} />
   </label>

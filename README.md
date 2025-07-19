@@ -62,6 +62,7 @@ The project uses SvelteKit with `adapter-static` and Tauri 2. Most of the applic
 - Change the data directory where question banks and history are saved.
 - Export all questions and history as a backup.
 - Toggle dark mode.
+- Reset the question bank to an empty state.
 
 ## Question Bank Format
 
