@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { derived } from 'svelte/store';
+  import { derived, get } from 'svelte/store';
+  import { onMount } from 'svelte';
+  import Chart from 'chart.js/auto';
   import { questions } from '$lib/stores/questions';
   import { history } from '$lib/stores/results';
   import { goto } from '$app/navigation';
@@ -26,6 +28,39 @@
         )
       )
   );
+  let chartEl: HTMLCanvasElement | null = null;
+  let chart: Chart | null = null;
+
+  onMount(() => {
+    if (chartEl) {
+      const data = get(recentScores);
+      chart = new Chart(chartEl, {
+        type: 'line',
+        data: {
+          labels: data.map((_, i) => `${i + 1}`),
+          datasets: [
+            {
+              label: 'Score %',
+              data,
+              borderColor: 'rgb(75, 192, 192)',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, max: 100 } },
+        },
+      });
+    }
+    return () => chart?.destroy();
+  });
+
+  $: if (chart) {
+    const data = get(recentScores);
+    chart.data.labels = data.map((_, i) => `${i + 1}`);
+    chart.data.datasets[0].data = data;
+    chart.update();
+  }
 </script>
 
 <main class="container dashboard">
@@ -36,24 +71,11 @@
     <div>Accuracy: {$accuracy}%</div>
   </section>
   <section class="graphs">
-    <h2>Statistics</h2>
-    <div class="graph-row">
-      <span>Accuracy</span>
-      <progress value={$accuracy} max="100">{$accuracy}%</progress>
-    </div>
-    <div class="graph-row">
-      <span>Attempts</span>
-      <progress value={$attemptCount} max="{$questions.length}"></progress>
-    </div>
+    <h2>Score Trend</h2>
     {#if $recentScores.length > 0}
-      <div class="graph-row">
-        <span>Recent Scores</span>
-        <div class="trend">
-          {#each $recentScores as s}
-            <div class="trend-bar" style="height: {s}%" title={`${s}%`}></div>
-          {/each}
-        </div>
-      </div>
+      <canvas bind:this={chartEl}></canvas>
+    {:else}
+      <p>No history yet.</p>
     {/if}
   </section>
   <nav class="quick">
