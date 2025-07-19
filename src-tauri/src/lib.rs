@@ -47,7 +47,7 @@ fn sample_questions() -> RQuestionBank {
 
     let question = RQuestion {
         id: 1,
-        question: "Is the Earth round?".into(),
+        question: "Example?".into(),
         options: Some(opts),
         answer: Value::String("A".into()),
         images: None,
