@@ -4,6 +4,7 @@
     import { lastResult, attemptCount, correctTotal, type AnswerRecord, addResultToHistory } from '$lib/stores/results';
     import type { Question } from '$lib/stores/questions';
     import { fade } from 'svelte/transition';
+    import { addToast } from '$lib/stores/toast';
 
   // Stores selected answers keyed by question id
   let answers: Record<number, string[]> = {};
@@ -35,7 +36,7 @@
       for (const q of $examQuestions) {
         const ans = answers[q.id];
         if (!ans || ans.length === 0) {
-          alert('Please answer all questions before submitting.');
+          addToast('Please answer all questions before submitting.');
           return;
         }
       }

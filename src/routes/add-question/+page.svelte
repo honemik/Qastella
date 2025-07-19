@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
   import { fade } from 'svelte/transition';
+  import { addToast } from '$lib/stores/toast';
 
   let questionText = '';
   let qType: 'single' | 'multiple' = 'single';
@@ -85,7 +86,7 @@
 
   async function save(ev?: Event, redirect = true) {
     if (correct.length === 0) {
-      alert('Please select the correct answer before saving');
+      addToast('Please select the correct answer before saving');
       return;
     }
     const list = get(questions);
