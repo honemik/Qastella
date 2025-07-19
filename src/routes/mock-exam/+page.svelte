@@ -32,6 +32,13 @@
    * Grade the answers and store the result before moving to the result page.
    */
   async function submit() {
+      for (const q of $examQuestions) {
+        const ans = answers[q.id];
+        if (!ans || ans.length === 0) {
+          alert('Please answer all questions before submitting.');
+          return;
+        }
+      }
       const records: AnswerRecord[] = [];
       let correct = 0;
       $examQuestions.forEach((q) => {

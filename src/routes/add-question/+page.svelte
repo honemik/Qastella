@@ -84,6 +84,10 @@
   }
 
   async function save(ev?: Event, redirect = true) {
+    if (correct.length === 0) {
+      alert('Please select the correct answer before saving');
+      return;
+    }
     const list = get(questions);
     const id = Math.max(0, ...list.map(q => q.id)) + 1;
     const q: Question = {
