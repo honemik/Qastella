@@ -55,7 +55,7 @@
       await addResultToHistory({ records, elapsed: 0 });
       attemptCount.update((n) => n + $examQuestions.length);
       correctTotal.update((n) => n + correct);
-      goto('/exam-result');
+      goto('/review');
     }
 </script>
 

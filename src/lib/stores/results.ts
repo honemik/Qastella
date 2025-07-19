@@ -28,7 +28,7 @@ export const history = writable<TimedExamResult[]>([]);
  * Read the exam history from disk using the configured data directory.
  */
 export async function loadHistory() {
-  const dir = get(dataDir);
+  const dir = get(dataDir) || null;
   const data = await invoke('load_history', { dir });
   history.set((data as TimedExamResult[]) ?? []);
 }
@@ -37,7 +37,7 @@ export async function loadHistory() {
  * Save the current history list to disk.
  */
 export async function saveHistory() {
-  const dir = get(dataDir);
+  const dir = get(dataDir) || null;
   const list = get(history);
   await invoke('save_history', { dir, history: list });
 }

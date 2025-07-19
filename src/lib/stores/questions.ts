@@ -62,7 +62,7 @@ export function flattenBank(bank: QuestionBank): Question[] {
  */
 export async function saveQuestionBank() {
   const list = get(questions);
-  const dir = get(dataDir);
+  const dir = get(dataDir) || null;
   const bank = toBank(list);
   await invoke('save_questions', { dir, bank });
 }
@@ -72,7 +72,7 @@ export async function saveQuestionBank() {
  * a built in sample bank is loaded instead.
  */
 export async function loadQuestionBank() {
-  const dir = get(dataDir);
+  const dir = get(dataDir) || null;
   let bank = (await invoke('load_questions', { dir })) as QuestionBank;
   if (!bank || Object.keys(bank.subjects).length === 0) {
     bank = (await invoke('sample_questions')) as QuestionBank;
