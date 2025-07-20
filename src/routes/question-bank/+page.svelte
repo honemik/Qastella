@@ -157,7 +157,7 @@
   }
 </script>
 
-<main>
+<main class="bank-page">
   <h1>Question Bank</h1>
   {#if $questions.length === 0}
     <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
@@ -177,7 +177,16 @@
         {/each}
       </select>
     </div>
-    <table>
+    <table class="bank">
+      <colgroup>
+        <col class="question" />
+        <col class="options" />
+        <col class="answer" />
+        <col class="images" />
+        <col class="subject" />
+        <col class="source" />
+        <col class="actions" />
+      </colgroup>
       <thead>
         <tr>
           <th>Question</th>
@@ -288,6 +297,44 @@
   }
   td {
     white-space: pre-wrap;
+  }
+  .bank-page {
+    max-width: none;
+    width: 100%;
+  }
+  .bank-page > h1,
+  .bank-page > .filters,
+  .bank-page > .save-bank {
+    max-width: 800px;
+    margin: 0 auto;
+    display: block;
+  }
+  table.bank {
+    width: 70vw;
+    margin: 0 auto;
+    border-collapse: collapse;
+  }
+  table.bank col.question {
+    width: 37%;
+  }
+  table.bank col.options {
+    width: 37%;
+  }
+  table.bank col.answer {
+    width: 8%;
+  }
+  table.bank col.images {
+    width: 5%;
+  }
+  table.bank col.subject {
+    width: 6%;
+  }
+  table.bank col.source {
+    width: 5%;
+  }
+  table.bank col.actions {
+    width: 1%;
+    white-space: nowrap;
   }
 </style>
 
