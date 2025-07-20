@@ -302,16 +302,22 @@
     max-width: none;
     width: 100%;
   }
+  .bank-page > h1,
+  .bank-page > .filters,
+  .bank-page > .save-bank {
+    max-width: 800px;
+    margin: 0 auto;
+  }
   table.bank {
-    width: 70%;
+    width: 70vw;
     margin: 0 auto;
     border-collapse: collapse;
   }
   table.bank col.question {
-    width: 55%;
+    width: 45%;
   }
   table.bank col.options {
-    width: 20%;
+    width: 30%;
   }
   table.bank col.answer {
     width: 8%;
