@@ -4,7 +4,8 @@
     type Question,
     type QuestionBank,
     flattenBank,
-    saveQuestionBank
+    saveQuestionBank,
+    isValidQuestionBank
   } from '$lib/stores/questions';
   import { invoke } from '@tauri-apps/api/core';
 
@@ -19,13 +20,14 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const raw = JSON.parse(reader.result as string) as QuestionBank;
-        if (!raw || typeof raw !== 'object' || !raw.subjects) {
+        const raw = JSON.parse(reader.result as string) as unknown;
+        if (!isValidQuestionBank(raw)) {
           throw new Error('Invalid question bank format');
         }
+        const bank = raw as QuestionBank;
         questions.update((existing) => {
           let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
-          const flat = flattenBank(raw);
+          const flat = flattenBank(bank);
           const added: Question[] = flat.map((q) => ({
             ...q,
             id: q.id ?? nextId++,

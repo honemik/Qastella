@@ -18,6 +18,42 @@ export interface QuestionBank {
   subjects: Record<string, Record<string, Omit<Question, 'subject' | 'source'>[]>>;
 }
 
+/**
+ * Basic runtime validation for a loaded question bank. Ensures the structure
+ * matches {@link QuestionBank} well enough to be processed safely.
+ */
+export function isValidQuestionBank(data: unknown): data is QuestionBank {
+  if (!data || typeof data !== 'object') return false;
+  const bank = data as Record<string, unknown>;
+  if (typeof bank.subjects !== 'object' || bank.subjects === null) return false;
+  for (const srcMap of Object.values(bank.subjects as Record<string, unknown>)) {
+    if (typeof srcMap !== 'object' || srcMap === null) return false;
+    for (const list of Object.values(srcMap as Record<string, unknown>)) {
+      if (!Array.isArray(list)) return false;
+      for (const q of list) {
+        if (!q || typeof q !== 'object') return false;
+        const qu = q as Record<string, unknown>;
+        if (typeof qu.id !== 'number') return false;
+        if (typeof qu.question !== 'string') return false;
+        if (qu.options !== undefined && typeof qu.options !== 'object') return false;
+        if (
+          qu.type !== 'single' &&
+          qu.type !== 'multiple' &&
+          qu.type !== 'short'
+        )
+          return false;
+        if (
+          typeof qu.answer !== 'string' &&
+          !Array.isArray(qu.answer)
+        )
+          return false;
+        if (qu.images !== undefined && !Array.isArray(qu.images)) return false;
+      }
+    }
+  }
+  return true;
+}
+
 // A reactive list containing all loaded questions
 export const questions = writable<Question[]>([]);
 
@@ -75,11 +111,11 @@ export async function saveQuestionBank() {
 export async function loadQuestionBank() {
   const dir = get(dataDir) || null;
   console.debug('Loading question bank from', dir ?? '(default)');
-  let bank = (await invoke('load_questions', { dir })) as QuestionBank;
-  if (!bank || Object.keys(bank.subjects).length === 0) {
+  let bank = (await invoke('load_questions', { dir })) as unknown;
+  if (!isValidQuestionBank(bank) || Object.keys(bank.subjects).length === 0) {
     bank = (await invoke('sample_questions')) as QuestionBank;
   }
-  const list = flattenBank(bank);
+  const list = flattenBank(bank as QuestionBank);
   console.debug('Loaded', list.length, 'questions');
   questions.set(list);
 }
