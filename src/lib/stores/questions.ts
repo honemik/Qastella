@@ -33,10 +33,19 @@ export function isValidQuestionBank(data: unknown): data is QuestionBank {
       for (const q of list) {
         if (!q || typeof q !== 'object') return false;
         const qu = q as Record<string, unknown>;
-        if (typeof qu.id !== 'number') return false;
-        if (typeof qu.question !== 'string') return false;
-        if (qu.options !== undefined && typeof qu.options !== 'object') return false;
         if (
+          qu.id !== undefined &&
+          typeof qu.id !== 'number'
+        )
+          return false;
+        if (typeof qu.question !== 'string') return false;
+        if (
+          qu.options !== undefined &&
+          (typeof qu.options !== 'object' || Array.isArray(qu.options))
+        )
+          return false;
+        if (
+          qu.type !== undefined &&
           qu.type !== 'single' &&
           qu.type !== 'multiple' &&
           qu.type !== 'short'

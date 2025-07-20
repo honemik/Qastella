@@ -30,7 +30,7 @@
           const flat = flattenBank(bank);
           const added: Question[] = flat.map((q) => ({
             ...q,
-            id: q.id ?? nextId++,
+            id: nextId++,
             type: q.type ?? 'single'
           }));
           return [...existing, ...added];
