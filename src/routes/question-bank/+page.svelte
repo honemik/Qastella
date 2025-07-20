@@ -307,6 +307,7 @@
   .bank-page > .save-bank {
     max-width: 800px;
     margin: 0 auto;
+    display: block;
   }
   table.bank {
     width: 70vw;
@@ -314,10 +315,10 @@
     border-collapse: collapse;
   }
   table.bank col.question {
-    width: 45%;
+    width: 37%;
   }
   table.bank col.options {
-    width: 30%;
+    width: 37%;
   }
   table.bank col.answer {
     width: 8%;
