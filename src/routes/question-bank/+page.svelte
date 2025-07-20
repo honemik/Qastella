@@ -299,26 +299,27 @@
     white-space: pre-wrap;
   }
   table.bank {
-    width: 100%;
+    width: 70%;
+    margin: 0 auto;
     border-collapse: collapse;
   }
   table.bank col.question {
-    width: 40%;
+    width: 55%;
   }
   table.bank col.options {
-    width: 30%;
+    width: 20%;
   }
   table.bank col.answer {
-    width: 10%;
+    width: 8%;
   }
   table.bank col.images {
     width: 5%;
   }
   table.bank col.subject {
-    width: 7%;
+    width: 6%;
   }
   table.bank col.source {
-    width: 7%;
+    width: 5%;
   }
   table.bank col.actions {
     width: 1%;
