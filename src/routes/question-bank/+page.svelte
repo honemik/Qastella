@@ -157,7 +157,7 @@
   }
 </script>
 
-<main>
+<main class="bank-page">
   <h1>Question Bank</h1>
   {#if $questions.length === 0}
     <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
@@ -297,6 +297,10 @@
   }
   td {
     white-space: pre-wrap;
+  }
+  .bank-page {
+    max-width: none;
+    width: 100%;
   }
   table.bank {
     width: 70%;
