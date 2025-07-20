@@ -131,10 +131,9 @@
   /**
    * Save the current edit to the question list.
    */
-  function save() {
+  async function save() {
     if (!editing) return;
-    editing.answer =
-      editing.type === 'multiple' ? correct : correct[0];
+    editing.answer = editing.type === 'multiple' ? correct : correct[0];
     questions.update((list) => {
       const idx = list.findIndex((q) => q.id === editing!.id);
       if (idx >= 0) {
@@ -144,6 +143,7 @@
       }
       return [...list, editing!];
     });
+    await saveQuestionBank();
     console.debug('Saved question', editing.id);
     dlg?.close();
     editing = null;
@@ -192,7 +192,7 @@
       <tbody>
         {#each $filtered as q (q.id)}
           <tr transition:fade>
-            <td>{q.question.slice(0, 30)}</td>
+            <td>{q.question}</td>
             <td>
               {q.options
                 ? Object.entries(q.options)
@@ -228,7 +228,7 @@
     </label>
     <label>
       Question
-      <input bind:value={editing.question} />
+      <textarea rows="5" bind:value={editing.question}></textarea>
     </label>
     {#if editing.options}
       {#each Object.entries(editing.options) as [key, val]}
@@ -280,5 +280,15 @@
   {/if}
 
 </dialog>
+
+<style>
+  textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  td {
+    white-space: pre-wrap;
+  }
+</style>
 
 
