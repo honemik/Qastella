@@ -131,7 +131,7 @@
   /**
    * Save the current edit to the question list.
    */
-  function save() {
+  async function save() {
     if (!editing) return;
     editing.answer =
       editing.type === 'multiple' ? correct : correct[0];
@@ -145,6 +145,7 @@
       return [...list, editing!];
     });
     console.debug('Saved question', editing.id);
+    await saveQuestionBank();
     dlg?.close();
     editing = null;
   }
@@ -152,8 +153,9 @@
   /**
    * Delete a question by id.
    */
-  function remove(id: number) {
+  async function remove(id: number) {
     questions.update(list => list.filter(q => q.id !== id));
+    await saveQuestionBank();
   }
 </script>
 
@@ -192,7 +194,7 @@
       <tbody>
         {#each $filtered as q (q.id)}
           <tr transition:fade>
-            <td>{q.question.slice(0, 30)}</td>
+            <td>{q.question}</td>
             <td>
               {q.options
                 ? Object.entries(q.options)
