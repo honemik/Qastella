@@ -177,7 +177,16 @@
         {/each}
       </select>
     </div>
-    <table>
+    <table class="bank">
+      <colgroup>
+        <col class="question" />
+        <col class="options" />
+        <col class="answer" />
+        <col class="images" />
+        <col class="subject" />
+        <col class="source" />
+        <col class="actions" />
+      </colgroup>
       <thead>
         <tr>
           <th>Question</th>
@@ -288,6 +297,32 @@
   }
   td {
     white-space: pre-wrap;
+  }
+  table.bank {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table.bank col.question {
+    width: 40%;
+  }
+  table.bank col.options {
+    width: 30%;
+  }
+  table.bank col.answer {
+    width: 10%;
+  }
+  table.bank col.images {
+    width: 5%;
+  }
+  table.bank col.subject {
+    width: 7%;
+  }
+  table.bank col.source {
+    width: 7%;
+  }
+  table.bank col.actions {
+    width: 1%;
+    white-space: nowrap;
   }
 </style>
 
