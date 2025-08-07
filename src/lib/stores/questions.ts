@@ -144,3 +144,24 @@ export async function resetQuestionBank() {
   await saveQuestionBank();
 }
 
+/**
+ * Automatically persist question changes to disk with a short debounce.
+ * This helps prevent data loss if the user navigates away without manually
+ * saving after edits or deletions.
+ */
+if (typeof window !== 'undefined') {
+  let initial = true;
+  let saveTimer: ReturnType<typeof setTimeout> | null = null;
+  questions.subscribe(() => {
+    if (initial) {
+      initial = false;
+      return;
+    }
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      saveQuestionBank();
+      saveTimer = null;
+    }, 300);
+  });
+}
+
