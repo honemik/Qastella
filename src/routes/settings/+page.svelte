@@ -9,6 +9,7 @@
   } from '$lib/stores/questions';
   import { history } from '$lib/stores/results';
   import { invoke } from '@tauri-apps/api/core';
+  import { addToast } from '$lib/stores/toast';
 
   /**
    * Download the current question bank as a JSON file.
@@ -53,7 +54,7 @@
       const dir = $dataDir || null;
       const raw = (await invoke('load_questions', { dir })) as unknown;
       if (!isValidQuestionBank(raw)) {
-        alert('Question bank file is invalid. No changes were loaded.');
+        addToast('Question bank file is invalid. No changes were loaded.');
         return;
       }
       questions.set(flattenBank(raw));

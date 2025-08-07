@@ -41,6 +41,7 @@ export function isValidQuestionBank(data: unknown): data is QuestionBank {
         if (typeof qu.question !== 'string') return false;
         if (
           qu.options !== undefined &&
+          qu.options !== null &&
           (typeof qu.options !== 'object' || Array.isArray(qu.options))
         )
           return false;
@@ -56,7 +57,12 @@ export function isValidQuestionBank(data: unknown): data is QuestionBank {
           !Array.isArray(qu.answer)
         )
           return false;
-        if (qu.images !== undefined && !Array.isArray(qu.images)) return false;
+        if (
+          qu.images !== undefined &&
+          qu.images !== null &&
+          !Array.isArray(qu.images)
+        )
+          return false;
       }
     }
   }
@@ -93,6 +99,8 @@ export function flattenBank(bank: QuestionBank): Question[] {
       for (const q of qs) {
         out.push({
           ...q,
+          options: q.options ?? undefined,
+          images: q.images ?? undefined,
           subject: subject || undefined,
           source: source || undefined
         });
