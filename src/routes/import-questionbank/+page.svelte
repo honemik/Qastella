@@ -48,10 +48,15 @@
    */
   async function loadSample() {
     const data = (await invoke('sample_questions')) as QuestionBank;
-    questions.update((existing) => [
-      ...existing,
-      ...flattenBank(data)
-    ]);
+    questions.update((existing) => {
+      let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
+      const added: Question[] = flattenBank(data).map((q) => ({
+        ...q,
+        id: nextId++,
+        type: q.type ?? 'single'
+      }));
+      return [...existing, ...added];
+    });
     saveQuestionBank();
   }
 </script>

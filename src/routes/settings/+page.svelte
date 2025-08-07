@@ -1,7 +1,15 @@
 <script lang="ts">
   import { dataDir, darkMode } from '$lib/stores/settings';
-  import { getQuestionBank, resetQuestionBank } from '$lib/stores/questions';
+  import {
+    getQuestionBank,
+    resetQuestionBank,
+    questions,
+    flattenBank,
+    isValidQuestionBank
+  } from '$lib/stores/questions';
   import { history } from '$lib/stores/results';
+  import { invoke } from '@tauri-apps/api/core';
+  import { addToast } from '$lib/stores/toast';
 
   /**
    * Download the current question bank as a JSON file.
@@ -37,6 +45,23 @@
       await resetQuestionBank();
     }
   }
+
+  /**
+   * Reload the question bank from disk if the stored data is valid.
+   */
+  async function reloadBank() {
+    try {
+      const dir = $dataDir || null;
+      const raw = (await invoke('load_questions', { dir })) as unknown;
+      if (!isValidQuestionBank(raw)) {
+        addToast('Question bank file is invalid. No changes were loaded.');
+        return;
+      }
+      questions.set(flattenBank(raw));
+    } catch (e) {
+      console.error('Failed to reload question bank', e);
+    }
+  }
 </script>
 
 <main>
@@ -46,6 +71,7 @@
   </label>
   <button on:click={exportQuestions}>Export Question Bank</button>
   <button on:click={exportHistory}>Export History</button>
+  <button on:click={reloadBank}>Reload Question Bank</button>
   <button on:click={resetBank}>Reset Question Bank</button>
   <label>
     Dark Mode <input type="checkbox" bind:checked={$darkMode} />

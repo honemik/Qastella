@@ -150,17 +150,25 @@
   }
 
   /**
-   * Delete a question by id.
+   * Delete a question by id and persist the change immediately.
    */
-  function remove(id: number) {
+  async function remove(id: number) {
     questions.update(list => list.filter(q => q.id !== id));
+    await saveQuestionBank();
   }
 </script>
 
 <main class="bank-page">
   <h1>Question Bank</h1>
   {#if $questions.length === 0}
-    <p>No questions loaded. <a href="/import-questionbank">Import a file</a>.</p>
+    <div class="empty-state">
+      <h2>Your question bank is empty</h2>
+      <p>Start by importing questions or add one manually.</p>
+      <div class="actions">
+        <a href="/import-questionbank">Import Questions</a>
+        <a href="/add-question">Add Question</a>
+      </div>
+    </div>
   {:else}
     <div class="filters">
       <input placeholder="Keyword" bind:value={$keyword} />
@@ -308,6 +316,38 @@
     max-width: 800px;
     margin: 0 auto;
     display: block;
+  }
+  .empty-state {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  .empty-state .actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .empty-state .actions a {
+    text-decoration: none;
+    padding: 0.6em 1.25em;
+    border-radius: 50px;
+    background: var(--button-bg);
+    color: var(--nav-text);
+    box-shadow: 0 0 8px rgb(0 0 0 / 5%);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.5s ease;
+  }
+  .empty-state .actions a:hover {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 7px 29px var(--shadow);
+    transform: scale(1.05);
+  }
+  .empty-state .actions a:active {
+    transform: translateY(4px);
+    box-shadow: none;
+    transition: 100ms;
   }
   table.bank {
     width: 70vw;
