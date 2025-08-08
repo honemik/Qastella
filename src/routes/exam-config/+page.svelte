@@ -2,13 +2,13 @@
   import { questions } from '$lib/stores/questions';
   import { examQuestions } from '$lib/stores/exam';
   import { goto } from '$app/navigation';
-  import { writable, derived, get } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 
-  const count = writable(10);
-  const subject = writable('');
-  const source = writable('');
+const count = writable(10);
+const selectedSubjects = writable<string[]>([]);
+const selectedSources = writable<string[]>([]);
 
-  // Distinct list of subjects and sources for the selection dropdowns
+  // Distinct list of subjects and sources for the selection lists
   const subjects = derived(
     questions,
     qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]
@@ -22,11 +22,13 @@
    * Prepare the selected subset of questions and navigate to the exam page.
    */
   function start() {
-    const subj = get(subject);
-    const src = get(source);
+    const subj = get(selectedSubjects);
+    const src = get(selectedSources);
     const cnt = get(count);
     const list = get(questions).filter(
-      (q) => (!subj || q.subject === subj) && (!src || q.source === src)
+      (q) =>
+        (subj.length === 0 || (q.subject && subj.includes(q.subject))) &&
+        (src.length === 0 || (q.source && src.includes(q.source)))
     );
     const shuffled = [...list].sort(() => Math.random() - 0.5).slice(0, cnt);
     examQuestions.set(shuffled);
@@ -41,23 +43,23 @@
     Question count:
     <input type="number" min="1" max={$questions.length} bind:value={$count} />
   </label>
-  <label>
-    Subject:
-    <select bind:value={$subject}>
-      <option value="">All</option>
-      {#each $subjects as s}
-        <option value={s}>{s}</option>
-      {/each}
-    </select>
-  </label>
-  <label>
-    Source:
-    <select bind:value={$source}>
-      <option value="">All</option>
-      {#each $sources as s}
-        <option value={s}>{s}</option>
-      {/each}
-    </select>
-  </label>
+  <fieldset>
+    <legend>Subjects</legend>
+    {#each $subjects as s}
+      <label>
+        <input type="checkbox" bind:group={$selectedSubjects} value={s} />
+        {s}
+      </label>
+    {/each}
+  </fieldset>
+  <fieldset>
+    <legend>Sources</legend>
+    {#each $sources as s}
+      <label>
+        <input type="checkbox" bind:group={$selectedSources} value={s} />
+        {s}
+      </label>
+    {/each}
+  </fieldset>
   <button on:click={start}>Start</button>
 </main>

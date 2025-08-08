@@ -1,25 +1,35 @@
 <script lang="ts">
   import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
-  import { writable, derived } from 'svelte/store';
-  import { fade } from 'svelte/transition';
+import { writable, derived, type Readable } from 'svelte/store';
+import { fade } from 'svelte/transition';
 
-  const keyword = writable('');
-  const subjectFilter = writable('');
-  const sourceFilter = writable('');
+const keyword = writable('');
+const debouncedKeyword: Readable<string> = derived(keyword, ($kw, set) => {
+  const handle = setTimeout(() => set($kw.toLowerCase()), 200);
+  return () => clearTimeout(handle);
+}, '');
+const subjectFilters = writable<string[]>([]);
+const sourceFilters = writable<string[]>([]);
 
-  const subjects = derived(questions, qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]);
-  const sources = derived(questions, qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]);
+const subjects = derived(
+  questions,
+  qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]
+);
+const sources = derived(
+  questions,
+  qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]
+);
 
-  const filtered = derived(
-    [questions, keyword, subjectFilter, sourceFilter],
-    ([$qs, $kw, $sub, $src]) =>
-      $qs.filter(
-        (q) =>
-          (!$kw || q.question.includes($kw)) &&
-          (!$sub || q.subject === $sub) &&
-          (!$src || q.source === $src)
-      )
-  );
+const filtered = derived(
+  [questions, debouncedKeyword, subjectFilters, sourceFilters],
+  ([$qs, $kw, $sub, $src]) =>
+    $qs.filter(
+      (q) =>
+        (!$kw || q.question.toLowerCase().includes($kw)) &&
+        ($sub.length === 0 || (q.subject && $sub.includes(q.subject))) &&
+        ($src.length === 0 || (q.source && $src.includes(q.source)))
+    )
+);
 
   let editing: Question | null = null;
   let correct: string[] = [];
@@ -172,18 +182,22 @@
   {:else}
     <div class="filters">
       <input placeholder="Keyword" bind:value={$keyword} />
-      <select bind:value={$subjectFilter}>
-        <option value="">All Subjects</option>
+      <div class="filter-group subjects">
         {#each $subjects as s}
-          <option value={s}>{s}</option>
+          <label>
+            <input type="checkbox" bind:group={$subjectFilters} value={s} />
+            {s}
+          </label>
         {/each}
-      </select>
-      <select bind:value={$sourceFilter}>
-        <option value="">All Years</option>
+      </div>
+      <div class="filter-group sources">
         {#each $sources as s}
-          <option value={s}>{s}</option>
+          <label>
+            <input type="checkbox" bind:group={$sourceFilters} value={s} />
+            {s}
+          </label>
         {/each}
-      </select>
+      </div>
     </div>
     <table class="bank">
       <colgroup>
@@ -208,7 +222,7 @@
       </thead>
       <tbody>
         {#each $filtered as q (q.id)}
-          <tr transition:fade>
+          <tr>
             <td>{q.question}</td>
             <td>
               {q.options
@@ -315,7 +329,16 @@
   .bank-page > .save-bank {
     max-width: 800px;
     margin: 0 auto;
-    display: block;
+  }
+  .bank-page > .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
   .empty-state {
     text-align: center;
