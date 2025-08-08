@@ -10,37 +10,43 @@
   import { invoke } from '@tauri-apps/api/core';
 
   /**
-   * Import questions from a user selected JSON file and merge them into the
+   * Import questions from user selected JSON file(s) and merge them into the
    * current question list.
    */
-  function handleFile(event: Event) {
+  async function handleFile(event: Event) {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    const files = input.files;
+    if (!files || files.length === 0) return;
+
+    const banks: QuestionBank[] = [];
+    for (const file of Array.from(files)) {
       try {
-        const raw = JSON.parse(reader.result as string) as unknown;
+        const text = await file.text();
+        const raw = JSON.parse(text) as unknown;
         if (!isValidQuestionBank(raw)) {
           throw new Error('Invalid question bank format');
         }
-        const bank = raw as QuestionBank;
-        questions.update((existing) => {
-          let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
-          const flat = flattenBank(bank);
-          const added: Question[] = flat.map((q) => ({
-            ...q,
-            id: nextId++,
-            type: q.type ?? 'single'
-          }));
-          return [...existing, ...added];
-        });
-        saveQuestionBank();
+        banks.push(raw as QuestionBank);
       } catch (e) {
-        console.error('Failed to import', e);
+        console.error('Failed to import', file.name, e);
       }
-    };
-    reader.readAsText(file);
+    }
+
+    if (banks.length === 0) return;
+
+    questions.update((existing) => {
+      let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
+      const added: Question[] = banks
+        .flatMap((b) => flattenBank(b))
+        .map((q) => ({
+          ...q,
+          id: nextId++,
+          type: q.type ?? 'single'
+        }));
+      return [...existing, ...added];
+    });
+
+    saveQuestionBank();
   }
 
   /**
@@ -63,7 +69,7 @@
 
 <main>
   <h1>Import Question Bank</h1>
-  <input type="file" accept="application/json" on:change={handleFile} />
+  <input type="file" accept="application/json" multiple on:change={handleFile} />
   <button on:click={loadSample}>Load Sample Questions</button>
   <p>
     Select a JSON file with the following structure. Questions are grouped by
