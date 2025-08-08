@@ -4,12 +4,18 @@ import { writable, derived, type Readable } from 'svelte/store';
 import { fade } from 'svelte/transition';
 
 const keyword = writable('');
+const subjectFilters = writable<string[]>([]);
+const sourceFilters = writable<string[]>([]);
+let show = false;
+
+$: if (!show && ($keyword || $subjectFilters.length || $sourceFilters.length)) {
+  show = true;
+}
+
 const debouncedKeyword: Readable<string> = derived(keyword, ($kw, set) => {
   const handle = setTimeout(() => set($kw.toLowerCase()), 200);
   return () => clearTimeout(handle);
 }, '');
-const subjectFilters = writable<string[]>([]);
-const sourceFilters = writable<string[]>([]);
 
 const subjects = derived(
   questions,
@@ -199,51 +205,58 @@ const filtered = derived(
         {/each}
       </div>
     </div>
-    <table class="bank">
-      <colgroup>
-        <col class="question" />
-        <col class="options" />
-        <col class="answer" />
-        <col class="images" />
-        <col class="subject" />
-        <col class="source" />
-        <col class="actions" />
-      </colgroup>
-      <thead>
-        <tr>
-          <th>Question</th>
-          <th>Options</th>
-          <th>Answer</th>
-          <th>Images</th>
-          <th>Subject</th>
-          <th>Source</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each $filtered as q (q.id)}
+    {#if show}
+      <table class="bank">
+        <colgroup>
+          <col class="question" />
+          <col class="options" />
+          <col class="answer" />
+          <col class="images" />
+          <col class="subject" />
+          <col class="source" />
+          <col class="actions" />
+        </colgroup>
+        <thead>
           <tr>
-            <td>{q.question}</td>
-            <td>
-              {q.options
-                ? Object.entries(q.options)
-                    .map(([k, v]) => `${k}:${v}`)
-                    .join(', ')
-                : ''}
-            </td>
-            <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
-            <td>{q.images?.length ?? 0}</td>
-            <td>{q.subject}</td>
-            <td>{q.source}</td>
-            <td>
-              <button on:click={() => openEdit(q)}>Edit</button>
-              <button on:click={() => remove(q.id)}>Delete</button>
-            </td>
+            <th>Question</th>
+            <th>Options</th>
+            <th>Answer</th>
+            <th>Images</th>
+            <th>Subject</th>
+            <th>Source</th>
+            <th></th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
-    <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
+        </thead>
+        <tbody>
+          {#each $filtered as q (q.id)}
+            <tr>
+              <td>{q.question}</td>
+              <td>
+                {q.options
+                  ? Object.entries(q.options)
+                      .map(([k, v]) => `${k}:${v}`)
+                      .join(', ')
+                  : ''}
+              </td>
+              <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
+              <td>{q.images?.length ?? 0}</td>
+              <td>{q.subject}</td>
+              <td>{q.source}</td>
+              <td>
+                <button on:click={() => openEdit(q)}>Edit</button>
+                <button on:click={() => remove(q.id)}>Delete</button>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+      <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
+    {:else}
+      <div class="no-questions">
+        <p>No questions displayed.</p>
+        <button on:click={() => (show = true)}>Show All Questions</button>
+      </div>
+    {/if}
   {/if}
 </main>
 
@@ -339,6 +352,13 @@ const filtered = derived(
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+  }
+  .no-questions {
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .no-questions button {
+    margin-top: 0.5rem;
   }
   .empty-state {
     text-align: center;
