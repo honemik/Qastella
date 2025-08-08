@@ -6,11 +6,6 @@ import { fade } from 'svelte/transition';
 const keyword = writable('');
 const subjectFilters = writable<string[]>([]);
 const sourceFilters = writable<string[]>([]);
-let show = false;
-
-$: if (!show && ($keyword || $subjectFilters.length || $sourceFilters.length)) {
-  show = true;
-}
 
 const debouncedKeyword: Readable<string> = derived(keyword, ($kw, set) => {
   const handle = setTimeout(() => set($kw.toLowerCase()), 200);
@@ -28,13 +23,16 @@ const sources = derived(
 
 const filtered = derived(
   [questions, debouncedKeyword, subjectFilters, sourceFilters],
-  ([$qs, $kw, $sub, $src]) =>
-    $qs.filter(
+  ([$qs, $kw, $sub, $src]) => {
+    const hasFilters = $kw || $sub.length || $src.length;
+    if (!hasFilters) return [] as Question[];
+    return $qs.filter(
       (q) =>
         (!$kw || q.question.toLowerCase().includes($kw)) &&
         ($sub.length === 0 || (q.subject && $sub.includes(q.subject))) &&
         ($src.length === 0 || (q.source && $src.includes(q.source)))
-    )
+    );
+  }
 );
 
   let editing: Question | null = null;
@@ -205,7 +203,7 @@ const filtered = derived(
         {/each}
       </div>
     </div>
-    {#if show}
+    {#if $filtered.length}
       <table class="bank">
         <colgroup>
           <col class="question" />
@@ -254,7 +252,6 @@ const filtered = derived(
     {:else}
       <div class="no-questions">
         <p>No questions displayed.</p>
-        <button on:click={() => (show = true)}>Show All Questions</button>
       </div>
     {/if}
   {/if}
@@ -356,9 +353,6 @@ const filtered = derived(
   .no-questions {
     text-align: center;
     margin-top: 1rem;
-  }
-  .no-questions button {
-    margin-top: 0.5rem;
   }
   .empty-state {
     text-align: center;
