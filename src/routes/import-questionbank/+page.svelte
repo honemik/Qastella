@@ -13,7 +13,8 @@
 
   /**
    * Import questions from user selected JSON file(s) and merge them into the
-   * current question list.
+   * current question list. Files are parsed in parallel and only valid banks
+   * are kept; the question store is updated once after all files resolve.
    */
   async function handleFile(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -49,6 +50,8 @@
     }
 
     let importedCount = 0;
+    // Apply all imported questions in a single batched update so that only
+    // one save is triggered once the merge completes.
     await withQuestionBatch(() => {
       questions.update((existing) => {
         const added: Question[] = banks
@@ -69,13 +72,16 @@
   }
 
   /**
-   * Load the built in sample questions using a backend call.
+   * Load the built in sample questions using a backend call and append them
+   * to the current list.
    */
   async function loadSample() {
     try {
       console.info('Loading sample questions');
       const data = (await invoke('sample_questions')) as QuestionBank;
       let importedCount = 0;
+      // Reuse the batching helper so adding the samples results in a single
+      // save instead of one per inserted question.
       await withQuestionBatch(() => {
         questions.update((existing) => {
           const added: Question[] = flattenBank(data).map((q) => ({

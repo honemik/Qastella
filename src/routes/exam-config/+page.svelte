@@ -4,9 +4,12 @@
   import { goto } from '$app/navigation';
 import { writable, derived, get } from 'svelte/store';
 
+// Number of questions to include in the generated exam
 const count = writable(10);
+// User-selected subject and source filters
 const selectedSubjects = writable<string[]>([]);
 const selectedSources = writable<string[]>([]);
+// Flags controlling randomisation behaviour
 let shuffleQuestions = true;
 let shuffleOptions = true;
 
@@ -24,6 +27,7 @@ let shuffleOptions = true;
   const filtered = derived(
     [questions, selectedSubjects, selectedSources],
     ([$qs, $sub, $src]) =>
+      // Include questions only when they match the active subject/source filters
       $qs.filter(
         (q) =>
           ($sub.length === 0 || (q.subject && $sub.includes(q.subject))) &&
@@ -33,6 +37,7 @@ let shuffleOptions = true;
 
   $: if ($count > $filtered.length) count.set($filtered.length);
 
+  // Fisher-Yates shuffle used for both question order and option order
   function shuffle<T>(arr: T[]): T[] {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -42,6 +47,7 @@ let shuffleOptions = true;
   }
 
   function shuffleOptionOrder(q: Question): Question {
+    // Reassign option keys after shuffling so answers stay aligned
     if (!q.options) return q;
     const entries = Object.entries(q.options);
     shuffle(entries);

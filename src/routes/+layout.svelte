@@ -53,7 +53,8 @@ function adjustNav() {
 
     // Persist data before the window unloads (e.g. refresh or close)
     const unloadHandler = () => {
-      // fire and forget when the browser reloads
+      // Fire-and-forget saves: we deliberately do not await them because the
+      // browser may terminate the page immediately after this handler runs.
       flushAutoSave();
       saveHistory();
     };

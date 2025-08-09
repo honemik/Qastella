@@ -3,15 +3,18 @@
 import { writable, derived, type Readable } from 'svelte/store';
 import { fade } from 'svelte/transition';
 
+// Raw filter inputs entered by the user
 const keyword = writable('');
 const subjectFilters = writable<string[]>([]);
 const sourceFilters = writable<string[]>([]);
 
+// Debounce keyword changes to avoid filtering on every keystroke
 const debouncedKeyword: Readable<string> = derived(keyword, ($kw, set) => {
   const handle = setTimeout(() => set($kw.toLowerCase()), 200);
   return () => clearTimeout(handle);
 }, '');
 
+// Unique list of subjects for the checkbox filters
 const subjects = derived(
   questions,
   (qs) => {
@@ -33,6 +36,7 @@ const sources = derived(
   }
 );
 
+// Apply all filter inputs and only show results when some filter is active
 const filtered = derived(
   [questions, debouncedKeyword, subjectFilters, sourceFilters],
   ([$qs, $kw, $sub, $src]) => {
@@ -94,6 +98,7 @@ const filtered = derived(
   function toggleCorrect(key: string) {
     if (!editing) return;
     if (editing.type === 'single') {
+      // Single choice questions only allow one correct answer
       correct = [key];
     } else {
       correct = correct.includes(key)

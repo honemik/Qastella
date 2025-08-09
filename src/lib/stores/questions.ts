@@ -72,9 +72,13 @@ export function isValidQuestionBank(data: unknown): data is QuestionBank {
 
 // A reactive list containing all loaded questions
 export const questions = writable<Question[]>([]);
-// Next id to assign when adding questions without scanning the array
+// Monotonically increasing id used to assign unique ids without scanning
+// the entire question list each time a new entry is created.
 let nextId = 1;
 
+/**
+ * Retrieve the next available question id and increment the counter.
+ */
 export function nextQuestionId() {
   return nextId++;
 }
@@ -118,16 +122,20 @@ export function flattenBank(bank: QuestionBank): Question[] {
 }
 
 // Prevent the auto-save subscription from scheduling saves during manual
-// operations or while an explicit save is in progress
+// operations or while an explicit save is in progress. The flag is flipped
+// by helpers like {@link saveQuestionBank} and {@link withQuestionBatch}.
 let suppressAutoSave = false;
 
-// Pending debounce timer for auto-saving
+// Pending debounce timer for auto-saving. When non-null a save is scheduled
+// to run after a short delay, coalescing rapid successive updates.
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
  * Persist the question bank to disk using the Tauri backend.
  */
 export async function saveQuestionBank() {
+  // mark the subscription so that the write below doesn't trigger another
+  // queued auto-save
   suppressAutoSave = true;
   if (saveTimer) {
     clearTimeout(saveTimer);
@@ -144,6 +152,8 @@ export async function saveQuestionBank() {
     console.error('Failed to save question bank', e);
     addToast('Failed to save question bank');
   } finally {
+    // Always re-enable the auto-save subscription even if the backend save
+    // fails so future edits continue to persist.
     suppressAutoSave = false;
   }
 }
@@ -156,8 +166,13 @@ export async function loadQuestionBank() {
   const dir = get(dataDir) || null;
   console.debug('Loading question bank from', dir ?? '(default)');
   try {
+    // Fetch the persisted bank; if none exists or it is corrupt fall back to
+    // bundled sample questions so the application still has content.
     let bank = (await invoke('load_questions', { dir })) as unknown;
-    if (!isValidQuestionBank(bank) || Object.keys((bank as QuestionBank).subjects).length === 0) {
+    if (
+      !isValidQuestionBank(bank) ||
+      Object.keys((bank as QuestionBank).subjects).length === 0
+    ) {
       bank = (await invoke('sample_questions')) as QuestionBank;
     }
     const list = flattenBank(bank as QuestionBank);
@@ -165,6 +180,8 @@ export async function loadQuestionBank() {
     console.debug('Loaded', list.length, 'questions');
     questions.set(list);
   } catch (e) {
+    // In the event of a failure, surface a toast and continue with an empty
+    // question list so the UI remains usable.
     console.error('Failed to load question bank', e);
     addToast('Failed to load question bank');
     questions.set([]);
@@ -192,6 +209,8 @@ export async function resetQuestionBank() {
  * Immediately persist any pending changes and cancel the debounce timer.
  */
 export async function flushAutoSave() {
+  // Cancel any pending debounced save and immediately persist the current
+  // state. Useful before unloading the page or after large batches of edits.
   if (saveTimer) {
     clearTimeout(saveTimer);
     saveTimer = null;
@@ -205,6 +224,9 @@ export async function flushAutoSave() {
  * auto-save subscription. The updated bank is saved once after `fn` completes.
  */
 export async function withQuestionBatch(fn: () => void | Promise<void>) {
+  // Temporarily disable the auto-save subscription so that a burst of
+  // updates (e.g. imports) doesn't trigger multiple writes. The caller's
+  // updates are executed inside `fn` and a single save occurs afterward.
   suppressAutoSave = true;
   if (saveTimer) {
     clearTimeout(saveTimer);
@@ -226,13 +248,18 @@ export async function withQuestionBatch(fn: () => void | Promise<void>) {
  * saving after edits or deletions.
  */
 if (typeof window !== 'undefined') {
+  // Persist changes whenever the questions store updates. The first update
+  // occurs during initial load and should not trigger a save.
   let initial = true;
   questions.subscribe(() => {
     if (initial) {
       initial = false;
       return;
     }
+    // Skip auto-save while `suppressAutoSave` is true (manual save in
+    // progress or a batch update).
     if (suppressAutoSave) return;
+    // Debounce to combine rapid consecutive updates into a single save.
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       saveQuestionBank();
