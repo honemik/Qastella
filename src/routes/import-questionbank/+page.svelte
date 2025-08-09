@@ -5,7 +5,8 @@
     type QuestionBank,
     flattenBank,
     isValidQuestionBank,
-    withQuestionBatch
+    withQuestionBatch,
+    nextQuestionId
   } from '$lib/stores/questions';
   import { invoke } from '@tauri-apps/api/core';
   import { addToast } from '$lib/stores/toast';
@@ -20,36 +21,41 @@
     if (!files || files.length === 0) return;
     console.info('Importing', files.length, 'file(s)');
 
-    const banks: QuestionBank[] = [];
-    for (const file of Array.from(files)) {
-      try {
-        const text = await file.text();
-        const raw = JSON.parse(text) as unknown;
-        if (!isValidQuestionBank(raw)) {
-          throw new Error('Invalid question bank format');
+    const fileArray = Array.from(files);
+    const results = await Promise.all(
+      fileArray.map(async (file) => {
+        try {
+          const text = await file.text();
+          const raw = JSON.parse(text) as unknown;
+          if (!isValidQuestionBank(raw)) {
+            throw new Error('Invalid question bank format');
+          }
+          console.info('Parsed', file.name);
+          return raw as QuestionBank;
+        } catch (e) {
+          console.error('Failed to import', file.name, e);
+          addToast(`Failed to import ${file.name}`);
+          return null;
         }
-        banks.push(raw as QuestionBank);
-        console.info('Parsed', file.name);
-      } catch (e) {
-        console.error('Failed to import', file.name, e);
-        addToast(`Failed to import ${file.name}`);
-      }
-    }
+      })
+    );
+
+    const banks = results.filter((b): b is QuestionBank => b !== null);
 
     if (banks.length === 0) {
       addToast('No valid question banks were imported');
+      input.value = '';
       return;
     }
 
     let importedCount = 0;
     await withQuestionBatch(() => {
       questions.update((existing) => {
-        let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
         const added: Question[] = banks
           .flatMap((b) => flattenBank(b))
           .map((q) => ({
             ...q,
-            id: nextId++,
+            id: nextQuestionId(),
             type: q.type ?? 'single'
           }));
         importedCount = added.length;
@@ -59,6 +65,7 @@
 
     console.info('Imported', importedCount, 'questions from', banks.length, 'file(s)');
     addToast(`Imported ${importedCount} questions from ${banks.length} file(s)`);
+    input.value = '';
   }
 
   /**
@@ -71,10 +78,9 @@
       let importedCount = 0;
       await withQuestionBatch(() => {
         questions.update((existing) => {
-          let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
           const added: Question[] = flattenBank(data).map((q) => ({
             ...q,
-            id: nextId++,
+            id: nextQuestionId(),
             type: q.type ?? 'single'
           }));
           importedCount = added.length;

@@ -14,11 +14,23 @@ const debouncedKeyword: Readable<string> = derived(keyword, ($kw, set) => {
 
 const subjects = derived(
   questions,
-  qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]
+  (qs) => {
+    const set = new Set<string>();
+    for (const q of qs) {
+      if (q.subject) set.add(q.subject);
+    }
+    return [...set];
+  }
 );
 const sources = derived(
   questions,
-  qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]
+  (qs) => {
+    const set = new Set<string>();
+    for (const q of qs) {
+      if (q.source) set.add(q.source);
+    }
+    return [...set];
+  }
 );
 
 const filtered = derived(

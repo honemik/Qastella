@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { invoke } from '@tauri-apps/api/core';
 import { dataDir } from './settings';
+import { addToast } from './toast';
 
 export interface Question {
   id: number;
@@ -71,6 +72,12 @@ export function isValidQuestionBank(data: unknown): data is QuestionBank {
 
 // A reactive list containing all loaded questions
 export const questions = writable<Question[]>([]);
+// Next id to assign when adding questions without scanning the array
+let nextId = 1;
+
+export function nextQuestionId() {
+  return nextId++;
+}
 
 /**
  * Convert a flat list of questions into the nested
@@ -130,9 +137,15 @@ export async function saveQuestionBank() {
   const dir = get(dataDir) || null;
   console.debug('Saving question bank to', dir ?? '(default)');
   const bank = toBank(list);
-  await invoke('save_questions', { dir, bank });
-  console.debug('Saved', list.length, 'questions');
-  suppressAutoSave = false;
+  try {
+    await invoke('save_questions', { dir, bank });
+    console.debug('Saved', list.length, 'questions');
+  } catch (e) {
+    console.error('Failed to save question bank', e);
+    addToast('Failed to save question bank');
+  } finally {
+    suppressAutoSave = false;
+  }
 }
 
 /**
@@ -142,13 +155,21 @@ export async function saveQuestionBank() {
 export async function loadQuestionBank() {
   const dir = get(dataDir) || null;
   console.debug('Loading question bank from', dir ?? '(default)');
-  let bank = (await invoke('load_questions', { dir })) as unknown;
-  if (!isValidQuestionBank(bank) || Object.keys(bank.subjects).length === 0) {
-    bank = (await invoke('sample_questions')) as QuestionBank;
+  try {
+    let bank = (await invoke('load_questions', { dir })) as unknown;
+    if (!isValidQuestionBank(bank) || Object.keys((bank as QuestionBank).subjects).length === 0) {
+      bank = (await invoke('sample_questions')) as QuestionBank;
+    }
+    const list = flattenBank(bank as QuestionBank);
+    nextId = Math.max(0, ...list.map((q) => q.id)) + 1;
+    console.debug('Loaded', list.length, 'questions');
+    questions.set(list);
+  } catch (e) {
+    console.error('Failed to load question bank', e);
+    addToast('Failed to load question bank');
+    questions.set([]);
+    nextId = 1;
   }
-  const list = flattenBank(bank as QuestionBank);
-  console.debug('Loaded', list.length, 'questions');
-  questions.set(list);
 }
 
 /**
@@ -163,6 +184,7 @@ export function getQuestionBank() {
  */
 export async function resetQuestionBank() {
   questions.set([]);
+  nextId = 1;
   await saveQuestionBank();
 }
 
