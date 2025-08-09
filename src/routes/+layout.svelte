@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 import { initSettings } from '$lib/stores/settings';
-import { loadQuestionBank, saveQuestionBank } from '$lib/stores/questions';
+import { loadQuestionBank, flushAutoSave } from '$lib/stores/questions';
 import { loadHistory, saveHistory } from '$lib/stores/results';
 import { dataDir } from '$lib/stores/settings';
 import { toasts } from '$lib/stores/toast';
@@ -51,15 +51,10 @@ function adjustNav() {
       }
     });
 
-    // Helper to persist questions and history together
-    const saveAll = async () => {
-      await Promise.all([saveQuestionBank(), saveHistory()]);
-    };
-
     // Persist data before the window unloads (e.g. refresh or close)
     const unloadHandler = () => {
       // fire and forget when the browser reloads
-      saveQuestionBank();
+      flushAutoSave();
       saveHistory();
     };
     window.addEventListener('beforeunload', unloadHandler);

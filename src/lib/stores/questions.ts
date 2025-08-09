@@ -110,15 +110,28 @@ export function flattenBank(bank: QuestionBank): Question[] {
   return out;
 }
 
+// Prevent the auto-save subscription from scheduling saves during manual
+// operations or while an explicit save is in progress
+let suppressAutoSave = false;
+
+// Pending debounce timer for auto-saving
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
 /**
  * Persist the question bank to disk using the Tauri backend.
  */
 export async function saveQuestionBank() {
+  suppressAutoSave = true;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
   const list = get(questions);
   const dir = get(dataDir) || null;
   console.debug('Saving question bank to', dir ?? '(default)');
   const bank = toBank(list);
   await invoke('save_questions', { dir, bank });
+  suppressAutoSave = false;
 }
 
 /**
@@ -153,18 +166,47 @@ export async function resetQuestionBank() {
 }
 
 /**
+ * Immediately persist any pending changes and cancel the debounce timer.
+ */
+export async function flushAutoSave() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  await saveQuestionBank();
+}
+
+/**
+ * Execute multiple question mutations while temporarily disabling the
+ * auto-save subscription. The updated bank is saved once after `fn` completes.
+ */
+export async function withQuestionBatch(fn: () => void | Promise<void>) {
+  suppressAutoSave = true;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  try {
+    await fn();
+    await flushAutoSave();
+  } finally {
+    suppressAutoSave = false;
+  }
+}
+
+/**
  * Automatically persist question changes to disk with a short debounce.
  * This helps prevent data loss if the user navigates away without manually
  * saving after edits or deletions.
  */
 if (typeof window !== 'undefined') {
   let initial = true;
-  let saveTimer: ReturnType<typeof setTimeout> | null = null;
   questions.subscribe(() => {
     if (initial) {
       initial = false;
       return;
     }
+    if (suppressAutoSave) return;
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       saveQuestionBank();

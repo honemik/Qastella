@@ -4,7 +4,8 @@
     type Question,
     type QuestionBank,
     flattenBank,
-    isValidQuestionBank
+    isValidQuestionBank,
+    withQuestionBatch
   } from '$lib/stores/questions';
   import { invoke } from '@tauri-apps/api/core';
 
@@ -33,16 +34,18 @@
 
     if (banks.length === 0) return;
 
-    questions.update((existing) => {
-      let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
-      const added: Question[] = banks
-        .flatMap((b) => flattenBank(b))
-        .map((q) => ({
-          ...q,
-          id: nextId++,
-          type: q.type ?? 'single'
-        }));
-      return [...existing, ...added];
+    await withQuestionBatch(() => {
+      questions.update((existing) => {
+        let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
+        const added: Question[] = banks
+          .flatMap((b) => flattenBank(b))
+          .map((q) => ({
+            ...q,
+            id: nextId++,
+            type: q.type ?? 'single'
+          }));
+        return [...existing, ...added];
+      });
     });
   }
 
@@ -51,14 +54,16 @@
    */
   async function loadSample() {
     const data = (await invoke('sample_questions')) as QuestionBank;
-    questions.update((existing) => {
-      let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
-      const added: Question[] = flattenBank(data).map((q) => ({
-        ...q,
-        id: nextId++,
-        type: q.type ?? 'single'
-      }));
-      return [...existing, ...added];
+    await withQuestionBatch(() => {
+      questions.update((existing) => {
+        let nextId = Math.max(0, ...existing.map((q) => q.id)) + 1;
+        const added: Question[] = flattenBank(data).map((q) => ({
+          ...q,
+          id: nextId++,
+          type: q.type ?? 'single'
+        }));
+        return [...existing, ...added];
+      });
     });
   }
 </script>
