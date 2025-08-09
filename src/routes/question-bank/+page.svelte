@@ -203,6 +203,7 @@ const filtered = derived(
         {/each}
       </div>
     </div>
+    <p class="result-count">{$filtered.length} questions</p>
     {#if $filtered.length}
       <table class="bank">
         <colgroup>
@@ -349,6 +350,10 @@ const filtered = derived(
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+  }
+  .result-count {
+    text-align: center;
+    margin: 0.5rem 0;
   }
   .no-questions {
     text-align: center;

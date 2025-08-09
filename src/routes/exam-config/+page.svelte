@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { questions } from '$lib/stores/questions';
+  import { questions, type Question } from '$lib/stores/questions';
   import { examQuestions } from '$lib/stores/exam';
   import { goto } from '$app/navigation';
 import { writable, derived, get } from 'svelte/store';
@@ -7,6 +7,8 @@ import { writable, derived, get } from 'svelte/store';
 const count = writable(10);
 const selectedSubjects = writable<string[]>([]);
 const selectedSources = writable<string[]>([]);
+let shuffleQuestions = true;
+let shuffleOptions = true;
 
   // Distinct list of subjects and sources for the selection lists
   const subjects = derived(
@@ -18,30 +20,70 @@ const selectedSources = writable<string[]>([]);
     qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]
   );
 
+  // Questions matching the current subject/source filters
+  const filtered = derived(
+    [questions, selectedSubjects, selectedSources],
+    ([$qs, $sub, $src]) =>
+      $qs.filter(
+        (q) =>
+          ($sub.length === 0 || (q.subject && $sub.includes(q.subject))) &&
+          ($src.length === 0 || (q.source && $src.includes(q.source)))
+      )
+  );
+
+  $: if ($count > $filtered.length) count.set($filtered.length);
+
+  function shuffle<T>(arr: T[]): T[] {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function shuffleOptionOrder(q: Question): Question {
+    if (!q.options) return q;
+    const entries = Object.entries(q.options);
+    shuffle(entries);
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const opts: Record<string, string> = {};
+    let ans: string | string[] = Array.isArray(q.answer) ? [] : '';
+    entries.forEach(([key, text], idx) => {
+      const letter = letters[idx];
+      opts[letter] = text;
+      if (Array.isArray(q.answer)) {
+        if (q.answer.includes(key)) (ans as string[]).push(letter);
+      } else if (q.answer === key) {
+        ans = letter;
+      }
+    });
+    return { ...q, options: opts, answer: ans };
+  }
+
   /**
    * Prepare the selected subset of questions and navigate to the exam page.
    */
   function start() {
-    const subj = get(selectedSubjects);
-    const src = get(selectedSources);
     const cnt = get(count);
-    const list = get(questions).filter(
-      (q) =>
-        (subj.length === 0 || (q.subject && subj.includes(q.subject))) &&
-        (src.length === 0 || (q.source && src.includes(q.source)))
-    );
-    const shuffled = [...list].sort(() => Math.random() - 0.5).slice(0, cnt);
-    examQuestions.set(shuffled);
+    let list = [...get(filtered)];
+    if (shuffleQuestions) {
+      shuffle(list);
+    }
+    list = list.slice(0, cnt);
+    if (shuffleOptions) {
+      list = list.map(shuffleOptionOrder);
+    }
+    examQuestions.set(list);
     goto('/mock-exam');
   }
 </script>
 
 <main>
   <h1>Mock Exam Setup</h1>
-  <p>Total questions available: {$questions.length}</p>
+  <p>Questions after filters: {$filtered.length}</p>
   <label>
     Question count:
-    <input type="number" min="1" max={$questions.length} bind:value={$count} />
+    <input type="number" min="1" max={$filtered.length} bind:value={$count} />
   </label>
   <fieldset>
     <legend>Subjects</legend>
@@ -61,5 +103,11 @@ const selectedSources = writable<string[]>([]);
       </label>
     {/each}
   </fieldset>
+  <label>
+    <input type="checkbox" bind:checked={shuffleQuestions} /> Randomize question order
+  </label>
+  <label>
+    <input type="checkbox" bind:checked={shuffleOptions} /> Randomize option order
+  </label>
   <button on:click={start}>Start</button>
 </main>
