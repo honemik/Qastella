@@ -4,7 +4,6 @@
     type Question,
     type QuestionBank,
     flattenBank,
-    saveQuestionBank,
     isValidQuestionBank
   } from '$lib/stores/questions';
   import { invoke } from '@tauri-apps/api/core';
@@ -45,8 +44,6 @@
         }));
       return [...existing, ...added];
     });
-
-    saveQuestionBank();
   }
 
   /**
@@ -63,7 +60,6 @@
       }));
       return [...existing, ...added];
     });
-    saveQuestionBank();
   }
 </script>
 
