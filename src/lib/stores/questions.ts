@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { invoke } from '@tauri-apps/api/core';
 import { dataDir } from './settings';
+import { addToast } from './toast';
 
 export interface Question {
   id: number;
@@ -71,6 +72,16 @@ export function isValidQuestionBank(data: unknown): data is QuestionBank {
 
 // A reactive list containing all loaded questions
 export const questions = writable<Question[]>([]);
+// Monotonically increasing id used to assign unique ids without scanning
+// the entire question list each time a new entry is created.
+let nextId = 1;
+
+/**
+ * Retrieve the next available question id and increment the counter.
+ */
+export function nextQuestionId() {
+  return nextId++;
+}
 
 /**
  * Convert a flat list of questions into the nested
@@ -110,15 +121,41 @@ export function flattenBank(bank: QuestionBank): Question[] {
   return out;
 }
 
+// Prevent the auto-save subscription from scheduling saves during manual
+// operations or while an explicit save is in progress. The flag is flipped
+// by helpers like {@link saveQuestionBank} and {@link withQuestionBatch}.
+let suppressAutoSave = false;
+
+// Pending debounce timer for auto-saving. When non-null a save is scheduled
+// to run after a short delay, coalescing rapid successive updates.
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
 /**
  * Persist the question bank to disk using the Tauri backend.
  */
 export async function saveQuestionBank() {
+  // mark the subscription so that the write below doesn't trigger another
+  // queued auto-save
+  suppressAutoSave = true;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
   const list = get(questions);
   const dir = get(dataDir) || null;
   console.debug('Saving question bank to', dir ?? '(default)');
   const bank = toBank(list);
-  await invoke('save_questions', { dir, bank });
+  try {
+    await invoke('save_questions', { dir, bank });
+    console.debug('Saved', list.length, 'questions');
+  } catch (e) {
+    console.error('Failed to save question bank', e);
+    addToast('Failed to save question bank');
+  } finally {
+    // Always re-enable the auto-save subscription even if the backend save
+    // fails so future edits continue to persist.
+    suppressAutoSave = false;
+  }
 }
 
 /**
@@ -128,13 +165,28 @@ export async function saveQuestionBank() {
 export async function loadQuestionBank() {
   const dir = get(dataDir) || null;
   console.debug('Loading question bank from', dir ?? '(default)');
-  let bank = (await invoke('load_questions', { dir })) as unknown;
-  if (!isValidQuestionBank(bank) || Object.keys(bank.subjects).length === 0) {
-    bank = (await invoke('sample_questions')) as QuestionBank;
+  try {
+    // Fetch the persisted bank; if none exists or it is corrupt fall back to
+    // bundled sample questions so the application still has content.
+    let bank = (await invoke('load_questions', { dir })) as unknown;
+    if (
+      !isValidQuestionBank(bank) ||
+      Object.keys((bank as QuestionBank).subjects).length === 0
+    ) {
+      bank = (await invoke('sample_questions')) as QuestionBank;
+    }
+    const list = flattenBank(bank as QuestionBank);
+    nextId = Math.max(0, ...list.map((q) => q.id)) + 1;
+    console.debug('Loaded', list.length, 'questions');
+    questions.set(list);
+  } catch (e) {
+    // In the event of a failure, surface a toast and continue with an empty
+    // question list so the UI remains usable.
+    console.error('Failed to load question bank', e);
+    addToast('Failed to load question bank');
+    questions.set([]);
+    nextId = 1;
   }
-  const list = flattenBank(bank as QuestionBank);
-  console.debug('Loaded', list.length, 'questions');
-  questions.set(list);
 }
 
 /**
@@ -149,7 +201,45 @@ export function getQuestionBank() {
  */
 export async function resetQuestionBank() {
   questions.set([]);
+  nextId = 1;
   await saveQuestionBank();
+}
+
+/**
+ * Immediately persist any pending changes and cancel the debounce timer.
+ */
+export async function flushAutoSave() {
+  // Cancel any pending debounced save and immediately persist the current
+  // state. Useful before unloading the page or after large batches of edits.
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  console.debug('Flushing auto-save');
+  await saveQuestionBank();
+}
+
+/**
+ * Execute multiple question mutations while temporarily disabling the
+ * auto-save subscription. The updated bank is saved once after `fn` completes.
+ */
+export async function withQuestionBatch(fn: () => void | Promise<void>) {
+  // Temporarily disable the auto-save subscription so that a burst of
+  // updates (e.g. imports) doesn't trigger multiple writes. The caller's
+  // updates are executed inside `fn` and a single save occurs afterward.
+  suppressAutoSave = true;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  try {
+    console.debug('Starting question batch');
+    await fn();
+    await flushAutoSave();
+    console.debug('Finished question batch');
+  } finally {
+    suppressAutoSave = false;
+  }
 }
 
 /**
@@ -158,13 +248,18 @@ export async function resetQuestionBank() {
  * saving after edits or deletions.
  */
 if (typeof window !== 'undefined') {
+  // Persist changes whenever the questions store updates. The first update
+  // occurs during initial load and should not trigger a save.
   let initial = true;
-  let saveTimer: ReturnType<typeof setTimeout> | null = null;
   questions.subscribe(() => {
     if (initial) {
       initial = false;
       return;
     }
+    // Skip auto-save while `suppressAutoSave` is true (manual save in
+    // progress or a batch update).
+    if (suppressAutoSave) return;
+    // Debounce to combine rapid consecutive updates into a single save.
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       saveQuestionBank();

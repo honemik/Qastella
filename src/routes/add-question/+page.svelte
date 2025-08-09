@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
+  import { questions, type Question, saveQuestionBank, nextQuestionId } from '$lib/stores/questions';
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
   import { fade } from 'svelte/transition';
@@ -90,7 +90,7 @@
       return;
     }
     const list = get(questions);
-    const id = Math.max(0, ...list.map(q => q.id)) + 1;
+    const id = nextQuestionId();
     const q: Question = {
       id,
       type: qType,

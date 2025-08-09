@@ -1,25 +1,55 @@
 <script lang="ts">
   import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
-  import { writable, derived } from 'svelte/store';
-  import { fade } from 'svelte/transition';
+import { writable, derived, type Readable } from 'svelte/store';
+import { fade } from 'svelte/transition';
 
-  const keyword = writable('');
-  const subjectFilter = writable('');
-  const sourceFilter = writable('');
+// Raw filter inputs entered by the user
+const keyword = writable('');
+const subjectFilters = writable<string[]>([]);
+const sourceFilters = writable<string[]>([]);
 
-  const subjects = derived(questions, qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]);
-  const sources = derived(questions, qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]);
+// Debounce keyword changes to avoid filtering on every keystroke
+const debouncedKeyword: Readable<string> = derived(keyword, ($kw, set) => {
+  const handle = setTimeout(() => set($kw.toLowerCase()), 200);
+  return () => clearTimeout(handle);
+}, '');
 
-  const filtered = derived(
-    [questions, keyword, subjectFilter, sourceFilter],
-    ([$qs, $kw, $sub, $src]) =>
-      $qs.filter(
-        (q) =>
-          (!$kw || q.question.includes($kw)) &&
-          (!$sub || q.subject === $sub) &&
-          (!$src || q.source === $src)
-      )
-  );
+// Unique list of subjects for the checkbox filters
+const subjects = derived(
+  questions,
+  (qs) => {
+    const set = new Set<string>();
+    for (const q of qs) {
+      if (q.subject) set.add(q.subject);
+    }
+    return [...set];
+  }
+);
+const sources = derived(
+  questions,
+  (qs) => {
+    const set = new Set<string>();
+    for (const q of qs) {
+      if (q.source) set.add(q.source);
+    }
+    return [...set];
+  }
+);
+
+// Apply all filter inputs and only show results when some filter is active
+const filtered = derived(
+  [questions, debouncedKeyword, subjectFilters, sourceFilters],
+  ([$qs, $kw, $sub, $src]) => {
+    const hasFilters = $kw || $sub.length || $src.length;
+    if (!hasFilters) return [] as Question[];
+    return $qs.filter(
+      (q) =>
+        (!$kw || q.question.toLowerCase().includes($kw)) &&
+        ($sub.length === 0 || (q.subject && $sub.includes(q.subject))) &&
+        ($src.length === 0 || (q.source && $src.includes(q.source)))
+    );
+  }
+);
 
   let editing: Question | null = null;
   let correct: string[] = [];
@@ -68,6 +98,7 @@
   function toggleCorrect(key: string) {
     if (!editing) return;
     if (editing.type === 'single') {
+      // Single choice questions only allow one correct answer
       correct = [key];
     } else {
       correct = correct.includes(key)
@@ -172,64 +203,75 @@
   {:else}
     <div class="filters">
       <input placeholder="Keyword" bind:value={$keyword} />
-      <select bind:value={$subjectFilter}>
-        <option value="">All Subjects</option>
+      <div class="filter-group subjects">
         {#each $subjects as s}
-          <option value={s}>{s}</option>
+          <label>
+            <input type="checkbox" bind:group={$subjectFilters} value={s} />
+            {s}
+          </label>
         {/each}
-      </select>
-      <select bind:value={$sourceFilter}>
-        <option value="">All Years</option>
+      </div>
+      <div class="filter-group sources">
         {#each $sources as s}
-          <option value={s}>{s}</option>
+          <label>
+            <input type="checkbox" bind:group={$sourceFilters} value={s} />
+            {s}
+          </label>
         {/each}
-      </select>
+      </div>
     </div>
-    <table class="bank">
-      <colgroup>
-        <col class="question" />
-        <col class="options" />
-        <col class="answer" />
-        <col class="images" />
-        <col class="subject" />
-        <col class="source" />
-        <col class="actions" />
-      </colgroup>
-      <thead>
-        <tr>
-          <th>Question</th>
-          <th>Options</th>
-          <th>Answer</th>
-          <th>Images</th>
-          <th>Subject</th>
-          <th>Source</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each $filtered as q (q.id)}
-          <tr transition:fade>
-            <td>{q.question}</td>
-            <td>
-              {q.options
-                ? Object.entries(q.options)
-                    .map(([k, v]) => `${k}:${v}`)
-                    .join(', ')
-                : ''}
-            </td>
-            <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
-            <td>{q.images?.length ?? 0}</td>
-            <td>{q.subject}</td>
-            <td>{q.source}</td>
-            <td>
-              <button on:click={() => openEdit(q)}>Edit</button>
-              <button on:click={() => remove(q.id)}>Delete</button>
-            </td>
+    <p class="result-count">{$filtered.length} questions</p>
+    {#if $filtered.length}
+      <table class="bank">
+        <colgroup>
+          <col class="question" />
+          <col class="options" />
+          <col class="answer" />
+          <col class="images" />
+          <col class="subject" />
+          <col class="source" />
+          <col class="actions" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Options</th>
+            <th>Answer</th>
+            <th>Images</th>
+            <th>Subject</th>
+            <th>Source</th>
+            <th></th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
-    <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
+        </thead>
+        <tbody>
+          {#each $filtered as q (q.id)}
+            <tr>
+              <td>{q.question}</td>
+              <td>
+                {q.options
+                  ? Object.entries(q.options)
+                      .map(([k, v]) => `${k}:${v}`)
+                      .join(', ')
+                  : ''}
+              </td>
+              <td>{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</td>
+              <td>{q.images?.length ?? 0}</td>
+              <td>{q.subject}</td>
+              <td>{q.source}</td>
+              <td>
+                <button on:click={() => openEdit(q)}>Edit</button>
+                <button on:click={() => remove(q.id)}>Delete</button>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+      <button class="save-bank" on:click={saveQuestionBank}>Save Bank</button>
+    {:else}
+      <div class="no-questions">
+        <p>No questions displayed.</p>
+      </div>
+    {/if}
   {/if}
 </main>
 
@@ -315,7 +357,24 @@
   .bank-page > .save-bank {
     max-width: 800px;
     margin: 0 auto;
-    display: block;
+  }
+  .bank-page > .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .result-count {
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+  .no-questions {
+    text-align: center;
+    margin-top: 1rem;
   }
   .empty-state {
     text-align: center;
