@@ -130,7 +130,7 @@ fn save_questions(
         }
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
-    let data = serde_json::to_vec_pretty(&bank).map_err(|e| e.to_string())?;
+    let data = serde_json::to_vec(&bank).map_err(|e| e.to_string())?;
     fs::write(path, data).map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -164,7 +164,7 @@ fn save_history(
         }
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
-    let data = serde_json::to_vec_pretty(&history).map_err(|e| e.to_string())?;
+    let data = serde_json::to_vec(&history).map_err(|e| e.to_string())?;
     fs::write(path, data).map_err(|e| e.to_string())?;
     Ok(())
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { questions, type Question, saveQuestionBank } from '$lib/stores/questions';
+  import { questions, type Question, saveQuestionBank, subjects, sources } from '$lib/stores/questions';
 import { writable, derived, type Readable } from 'svelte/store';
 import { fade } from 'svelte/transition';
 
@@ -14,27 +14,7 @@ const debouncedKeyword: Readable<string> = derived(keyword, ($kw, set) => {
   return () => clearTimeout(handle);
 }, '');
 
-// Unique list of subjects for the checkbox filters
-const subjects = derived(
-  questions,
-  (qs) => {
-    const set = new Set<string>();
-    for (const q of qs) {
-      if (q.subject) set.add(q.subject);
-    }
-    return [...set];
-  }
-);
-const sources = derived(
-  questions,
-  (qs) => {
-    const set = new Set<string>();
-    for (const q of qs) {
-      if (q.source) set.add(q.source);
-    }
-    return [...set];
-  }
-);
+// Unique lists of subjects and sources
 
 // Apply all filter inputs and only show results when some filter is active
 const filtered = derived(

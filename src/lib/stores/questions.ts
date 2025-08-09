@@ -1,4 +1,4 @@
-import { writable, get } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { invoke } from '@tauri-apps/api/core';
 import { dataDir } from './settings';
 import { addToast } from './toast';
@@ -23,55 +23,58 @@ export interface QuestionBank {
  * Basic runtime validation for a loaded question bank. Ensures the structure
  * matches {@link QuestionBank} well enough to be processed safely.
  */
-export function isValidQuestionBank(data: unknown): data is QuestionBank {
-  if (!data || typeof data !== 'object') return false;
-  const bank = data as Record<string, unknown>;
-  if (typeof bank.subjects !== 'object' || bank.subjects === null) return false;
-  for (const srcMap of Object.values(bank.subjects as Record<string, unknown>)) {
-    if (typeof srcMap !== 'object' || srcMap === null) return false;
-    for (const list of Object.values(srcMap as Record<string, unknown>)) {
-      if (!Array.isArray(list)) return false;
-      for (const q of list) {
-        if (!q || typeof q !== 'object') return false;
-        const qu = q as Record<string, unknown>;
-        if (
-          qu.id !== undefined &&
-          typeof qu.id !== 'number'
-        )
-          return false;
-        if (typeof qu.question !== 'string') return false;
-        if (
-          qu.options !== undefined &&
-          qu.options !== null &&
-          (typeof qu.options !== 'object' || Array.isArray(qu.options))
-        )
-          return false;
-        if (
-          qu.type !== undefined &&
-          qu.type !== 'single' &&
-          qu.type !== 'multiple' &&
-          qu.type !== 'short'
-        )
-          return false;
-        if (
-          typeof qu.answer !== 'string' &&
-          !Array.isArray(qu.answer)
-        )
-          return false;
-        if (
-          qu.images !== undefined &&
-          qu.images !== null &&
-          !Array.isArray(qu.images)
-        )
-          return false;
-      }
-    }
-  }
+function isRecord(obj: unknown): obj is Record<string, unknown> {
+  return typeof obj === 'object' && obj !== null;
+}
+
+function isValidQuestion(q: unknown): q is Omit<Question, 'subject' | 'source'> {
+  if (!isRecord(q)) return false;
+  if (q.id !== undefined && typeof q.id !== 'number') return false;
+  if (typeof q.question !== 'string') return false;
+  if (q.options !== undefined && (!isRecord(q.options) || Array.isArray(q.options))) return false;
+  if (
+    q.type !== undefined &&
+    q.type !== 'single' &&
+    q.type !== 'multiple' &&
+    q.type !== 'short'
+  )
+    return false;
+  if (typeof q.answer !== 'string' && !Array.isArray(q.answer)) return false;
+  if (q.images !== undefined && !Array.isArray(q.images)) return false;
   return true;
+}
+
+function isValidQuestionList(list: unknown): list is Omit<Question, 'subject' | 'source'>[] {
+  return Array.isArray(list) && list.every(isValidQuestion);
+}
+
+function isValidSourceMap(map: unknown): map is Record<string, Omit<Question, 'subject' | 'source'>[]> {
+  return isRecord(map) && Object.values(map).every(isValidQuestionList);
+}
+
+export function isValidQuestionBank(data: unknown): data is QuestionBank {
+  if (!isRecord(data)) return false;
+  const subj = (data as Record<string, unknown>).subjects;
+  if (!isRecord(subj)) return false;
+  return Object.values(subj as Record<string, unknown>).every(isValidSourceMap);
 }
 
 // A reactive list containing all loaded questions
 export const questions = writable<Question[]>([]);
+export const subjectsSet = writable(new Set<string>());
+export const sourcesSet = writable(new Set<string>());
+export const subjects = derived(subjectsSet, (s) => Array.from(s));
+export const sources = derived(sourcesSet, (s) => Array.from(s));
+questions.subscribe((qs) => {
+  const subj = new Set<string>();
+  const src = new Set<string>();
+  for (const q of qs) {
+    if (q.subject) subj.add(q.subject);
+    if (q.source) src.add(q.source);
+  }
+  subjectsSet.set(subj);
+  sourcesSet.set(src);
+});
 // Monotonically increasing id used to assign unique ids without scanning
 // the entire question list each time a new entry is created.
 let nextId = 1;
