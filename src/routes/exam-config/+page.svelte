@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { questions, type Question } from '$lib/stores/questions';
+  import { questions, type Question, subjects, sources } from '$lib/stores/questions';
   import { examQuestions } from '$lib/stores/exam';
   import { goto } from '$app/navigation';
 import { writable, derived, get } from 'svelte/store';
@@ -14,14 +14,6 @@ let shuffleQuestions = true;
 let shuffleOptions = true;
 
   // Distinct list of subjects and sources for the selection lists
-  const subjects = derived(
-    questions,
-    qs => Array.from(new Set(qs.map(q => q.subject).filter(Boolean))) as string[]
-  );
-  const sources = derived(
-    questions,
-    qs => Array.from(new Set(qs.map(q => q.source).filter(Boolean))) as string[]
-  );
 
   // Questions matching the current subject/source filters
   const filtered = derived(

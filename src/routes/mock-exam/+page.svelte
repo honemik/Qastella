@@ -5,9 +5,10 @@
     import type { Question } from '$lib/stores/questions';
     import { fade } from 'svelte/transition';
     import { addToast } from '$lib/stores/toast';
+    import { writable, get } from 'svelte/store';
 
   // Stores selected answers keyed by question id
-  let answers: Record<number, string[]> = {};
+  const answers = writable<Map<number, string[]>>(new Map());
 
   /**
    * Update the user's selected answer for a question. Multiple choice
@@ -15,17 +16,18 @@
    * questions replace the previous selection.
    */
   function toggleOption(q: Question, opt: string) {
-    const current = answers[q.id] ?? [];
-    if (q.type === 'multiple') {
-      answers = {
-        ...answers,
-        [q.id]: current.includes(opt)
-          ? current.filter((o) => o !== opt)
-          : [...current, opt]
-      };
-    } else {
-      answers = { ...answers, [q.id]: [opt] };
-    }
+    answers.update((map) => {
+      const current = map.get(q.id) ?? [];
+      if (q.type === 'multiple') {
+        map.set(
+          q.id,
+          current.includes(opt) ? current.filter((o) => o !== opt) : [...current, opt]
+        );
+      } else {
+        map.set(q.id, [opt]);
+      }
+      return new Map(map);
+    });
   }
   let lightbox: string | null = null;
 
@@ -33,8 +35,9 @@
    * Grade the answers and store the result before moving to the result page.
    */
   async function submit() {
+      const ansMap = get(answers);
       for (const q of $examQuestions) {
-        const ans = answers[q.id];
+        const ans = ansMap.get(q.id);
         if (!ans || ans.length === 0) {
           addToast('Please answer all questions before submitting.');
           return;
@@ -43,7 +46,7 @@
       const records: AnswerRecord[] = [];
       let correct = 0;
       $examQuestions.forEach((q) => {
-        const ans = answers[q.id] ?? [];
+        const ans = ansMap.get(q.id) ?? [];
         let ok = false;
         if (Array.isArray(q.answer)) {
           // Convert the selected answers to a Set to avoid duplicate
@@ -100,7 +103,7 @@
                 <button
                   type="button"
                   class="option-btn"
-                  class:selected={(answers[q.id] ?? []).includes(key)}
+                  class:selected={($answers.get(q.id) ?? []).includes(key)}
                   on:click={() => toggleOption(q, key)}
                 >
                   {key}. {text}
