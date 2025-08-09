@@ -131,6 +131,7 @@ export async function saveQuestionBank() {
   console.debug('Saving question bank to', dir ?? '(default)');
   const bank = toBank(list);
   await invoke('save_questions', { dir, bank });
+  console.debug('Saved', list.length, 'questions');
   suppressAutoSave = false;
 }
 
@@ -173,6 +174,7 @@ export async function flushAutoSave() {
     clearTimeout(saveTimer);
     saveTimer = null;
   }
+  console.debug('Flushing auto-save');
   await saveQuestionBank();
 }
 
@@ -187,8 +189,10 @@ export async function withQuestionBatch(fn: () => void | Promise<void>) {
     saveTimer = null;
   }
   try {
+    console.debug('Starting question batch');
     await fn();
     await flushAutoSave();
+    console.debug('Finished question batch');
   } finally {
     suppressAutoSave = false;
   }
