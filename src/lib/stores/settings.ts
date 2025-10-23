@@ -1,10 +1,25 @@
 import { writable } from 'svelte/store';
 import { invoke } from '@tauri-apps/api/core';
 
+export const HISTORY_RETENTION_DEFAULT = 250;
+export const HISTORY_RETENTION_MIN = 25;
+export const HISTORY_RETENTION_MAX = 2000;
+const HISTORY_RETENTION_KEY = 'historyRetention';
+
+/** Clamp the retention value to a sensible range. */
+export function clampHistoryRetention(value: number): number {
+  if (!Number.isFinite(value)) return HISTORY_RETENTION_DEFAULT;
+  if (value < HISTORY_RETENTION_MIN) return HISTORY_RETENTION_MIN;
+  if (value > HISTORY_RETENTION_MAX) return HISTORY_RETENTION_MAX;
+  return Math.floor(value);
+}
+
 // Directory used for reading and writing data files
 export const dataDir = writable('');
 // Dark mode toggle
 export const darkMode = writable(false);
+// Number of history entries to retain on disk
+export const historyRetention = writable<number>(HISTORY_RETENTION_DEFAULT);
 
 // Persist store values to localStorage and update document styles
 darkMode.subscribe((v) => {
@@ -36,5 +51,20 @@ export async function initSettings() {
   if (typeof localStorage !== 'undefined') {
     const dark = localStorage.getItem('darkMode') === '1';
     darkMode.set(dark);
+  }
+
+  if (typeof localStorage !== 'undefined') {
+    const storedRetention = localStorage.getItem(HISTORY_RETENTION_KEY);
+    const parsed = storedRetention !== null ? Number.parseInt(storedRetention, 10) : NaN;
+    const initial = clampHistoryRetention(Number.isNaN(parsed) ? HISTORY_RETENTION_DEFAULT : parsed);
+    historyRetention.set(initial);
+    historyRetention.subscribe((value) => {
+      const clamped = clampHistoryRetention(value);
+      if (value !== clamped) {
+        historyRetention.set(clamped);
+        return;
+      }
+      localStorage.setItem(HISTORY_RETENTION_KEY, String(clamped));
+    });
   }
 }
