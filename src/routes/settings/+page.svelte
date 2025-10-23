@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { dataDir, darkMode } from '$lib/stores/settings';
+  import {
+    clampHistoryRetention,
+    dataDir,
+    darkMode,
+    historyRetention,
+    HISTORY_RETENTION_MAX,
+    HISTORY_RETENTION_MIN
+  } from '$lib/stores/settings';
   import {
     getQuestionBank,
     resetQuestionBank,
@@ -62,9 +69,13 @@
       console.error('Failed to reload question bank', e);
     }
   }
+
+  function normaliseRetention(value: number) {
+    historyRetention.set(clampHistoryRetention(value));
+  }
 </script>
 
-<main>
+<main class="settings-page">
   <h1>Settings</h1>
   <label>
     Data Directory <input bind:value={$dataDir} />
@@ -75,6 +86,19 @@
   <button on:click={resetBank}>Reset Question Bank</button>
   <label>
     Dark Mode <input type="checkbox" bind:checked={$darkMode} />
+  </label>
+  <label>
+    Stored History Limit
+    <input
+      type="number"
+      min={HISTORY_RETENTION_MIN}
+      max={HISTORY_RETENTION_MAX}
+      bind:value={$historyRetention}
+      on:change={(event) => normaliseRetention(Number(event.currentTarget.value))}
+    />
+    <span class="field-note">
+      Oldest sessions are pruned automatically when the limit is reached.
+    </span>
   </label>
 </main>
 

@@ -429,18 +429,58 @@ pre {
 }
 
 .dashboard .stats {
-  display: flex;
+  --surface: var(--card-bg, rgba(15, 23, 42, 0.75));
+  --surface-text: var(--text);
+  display: grid;
   gap: 1rem;
-  flex-wrap: wrap;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-block: 1.5rem;
 }
-.dashboard .stats div {
-  flex: 1;
-  text-align: center;
-  background: var(--primary);
-  color: var(--nav-text);
-  padding: 1rem;
-  border-radius: 6px;
-  transition: transform 0.3s;
+
+.dashboard .recent {
+  margin-block: 1.5rem;
+  padding: 1.5rem;
+  background: var(--card-bg, rgba(148, 163, 184, 0.1));
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard .recent h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.dashboard .recent-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.dashboard .recent-score {
+  font-size: clamp(1.5rem, 1vw + 1.25rem, 2rem);
+  font-weight: 600;
+  margin: 0;
+}
+
+.dashboard .recent dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 0;
+}
+
+.dashboard .recent dt {
+  font-weight: 600;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.dashboard .recent dd {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
 }
 .dashboard .quick {
   margin-top: 1rem;
@@ -453,10 +493,10 @@ pre {
 }
 
 .dashboard .graphs {
-  margin-top: 1rem;
+  margin-top: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 .dashboard .graph-row {
   display: flex;
@@ -466,5 +506,22 @@ pre {
 .dashboard .graphs canvas {
   width: 100%;
   max-height: 200px;
+}
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.settings-page label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.settings-page .field-note {
+  font-size: 0.85rem;
+  opacity: 0.7;
 }
 
